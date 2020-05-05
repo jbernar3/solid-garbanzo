@@ -3,9 +3,10 @@ const User = require('./app/models/users');
 
 // create a new user called chris
 const chris = new User({
-    name: 'Chris',
-    username: 'mynamejeff',
-    password: 'password'
+    first_name: 'Snoop',
+    last_name: 'Bernard',
+    email: 'mynamejeff',
+    password: 'qwerty'
 });
 
 // call the custom method. this will just add -dude to his name
