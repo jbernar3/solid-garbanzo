@@ -9,7 +9,8 @@ const userSchema = new Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     created_at: Date,
-    updated_at: Date
+    updated_at: Date,
+    wants_msg: {type: Boolean, required: true}
 });
 
 // custom method to add string to end of name

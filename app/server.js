@@ -16,16 +16,23 @@ app.post('/signup', (request,response)=>{
         email : request.body.email,
         password : request.body.password,
         created_at : new Date(),
-        updated_at : null
+        updated_at : null,
+        wants_msg : request.body.wantsPromotions
     });
     newUser.save(function(err) {
-        if (err) throw err;
+        if (err) {
+            response.send("error");
+        }
+
+        User.find({ email: request.body.email }, function(err, user) {
+            if (err) throw err;
+
+            // object of the user
+            response.send(user);
+        });
 
         console.log('User created!');
     });
-    // console.log("in post");
-    // console.log(request.body);
-    response.send(request.body);
 });
 
 
