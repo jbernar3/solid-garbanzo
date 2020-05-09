@@ -1,39 +1,35 @@
-const express = require('express'),
-    server = express();
-const User = require('./models/users');
+const express = require('express');
 const bodyParser = require('body-parser');
+const app = express();
+const User = require('./models/users');
+const port = process.env.PORT || 3000;
 
-server.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
-server.use(bodyParser.json()); // support json encoded bodies
-//server.use('/', router);
-
-server.set('port', process.env.PORT || 3000);
+app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json()); // support json encoded bodies
 
 //Basic routes
-server.post('/signup', (request,response)=>{
-    //const newUser = new User(queryObject);
+app.post('/signup', (request,response)=>{
     console.log("in post");
-    console.log(request.body);
-    response.end();
-    // newUser.save(function(err) {
-    //     if (err) response.send('error');
-    //
-    //     response.send('success');
-    // });
+    const newUser = User({
+        first_name : request.body.firstName,
+        last_name : request.body.lastName,
+        email : request.body.email,
+        password : request.body.password,
+        created_at : new Date(),
+        updated_at : null
+    });
+    newUser.save(function(err) {
+        if (err) throw err;
+
+        console.log('User created!');
+    });
+    // console.log("in post");
+    // console.log(request.body);
+    response.send(request.body);
 });
 
-server.get('/about',(request,response)=>{
-    response.send('About page');
-});
-
-//Express error handling middleware
-server.use((request,response)=>{
-    response.type('text/plain');
-    response.status(504);
-    response.send('Error page');
-});
 
 //Binding to a port
-server.listen(3000, ()=>{
+app.listen(port, ()=>{
     console.log('Express server started at port 3000');
 });
