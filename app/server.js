@@ -19,19 +19,41 @@ app.post('/signup', (request,response)=>{
         updated_at : null,
         wants_msg : request.body.wantsPromotions
     });
-    newUser.save(function(err) {
+    User.find({ email: request.body.email}, function(err, user) {
+        if (user !== []) {
+            response.send("user exists");
+        } else {
+            newUser.save(function(err) {
+                if (err) {
+                    response.send("error");
+                }
+
+                User.find({ email: request.body.email }, function(err, user) {
+                    if (err) {
+                        response.send("Email signing up. Please try again.");
+                    }
+
+                    // object of the user
+                    response.send(user[0]);
+                });
+
+                console.log('User created!');
+            });
+        }
+    });
+});
+
+app.post('/signin', (request,response)=>{
+    console.log("in signin");
+    User.find({ email: request.body.email, password: request.body.password}, function(err, user) {
         if (err) {
             response.send("error");
+        } else if (user === []) {
+            response.send("dne");
+        } else {
+            response.send(user[0]);
+            console.log("Signed In");
         }
-
-        User.find({ email: request.body.email }, function(err, user) {
-            if (err) throw err;
-
-            // object of the user
-            response.send(user);
-        });
-
-        console.log('User created!');
     });
 });
 
