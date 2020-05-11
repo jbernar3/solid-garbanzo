@@ -44,11 +44,10 @@ app.post('/signup', (request,response)=>{
 });
 
 app.post('/signin', (request,response)=>{
-    console.log("in signin");
     User.find({ email: request.body.email, password: request.body.password}, function(err, user) {
         if (err) {
             response.send("error");
-        } else if (user === []) {
+        } else if (user.length === 0) {
             response.send("dne");
         } else {
             response.send(user[0]);
