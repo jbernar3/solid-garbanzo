@@ -1,26 +1,33 @@
 let mongoose = require('mongoose');
 mongoose.connect('mongodb+srv://jbernar3:yhO1wp1BebZ1DPFU@solidgarbanzocluster-nhlwu.mongodb.net/test?retryWrites=true&w=majority');
 const Schema = mongoose.Schema;
+const crypto = require('crypto');
 
 // create a schema
 const userSchema = new Schema({
     first_name: {type: String, required: true},
     last_name: {type: String, required: true},
     email: {type: String, required: true, unique: true},
-    password: {type: String, required: true},
+    hash: {type: String, required: true},
+    salt: {type: String, required: true},
     created_at: Date,
-    updated_at: Date,
     wants_msg: {type: Boolean, required: true}
 });
 
-// custom method to add string to end of name
-// you can create more important methods like name validations or formatting
-// you can also do queries and find similar users
-userSchema.methods.dudify = function() {
-    // add some stuff to the users name
-    this.name = this.name + '-dude';
+userSchema.methods.setPassword = function(password) {
 
-    return this.name;
+    // Creating a unique salt for a particular user
+    this.salt = crypto.randomBytes(16).toString('hex');
+
+    // Hashing user's salt and password with 1000 iterations,
+    this.hash = crypto.pbkdf2Sync(password, this.salt,
+        1000, 64, `sha512`).toString(`hex`);
+};
+
+userSchema.methods.validPassword = function(password) {
+    const hash = crypto.pbkdf2Sync(password,
+        this.salt, 1000, 64, `sha512`).toString(`hex`);
+    return this.hash === hash;
 };
 
 // the schema is useless so far

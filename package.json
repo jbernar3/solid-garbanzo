@@ -17,10 +17,11 @@
   },
   "homepage": "https://github.com/jbernar3/solid-garbanzo#readme",
   "dependencies": {
-    "connect": "^3.7.0",
-    "express": "^4.17.1",
-    "mongoose": "^5.9.11",
     "body-parser": "latest",
-    "mongodb": "latest"
+    "connect": "^3.7.0",
+    "crypto": "^1.0.1",
+    "express": "^4.17.1",
+    "mongodb": "latest",
+    "mongoose": "^5.9.11"
   }
 }

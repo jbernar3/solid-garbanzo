@@ -10,33 +10,22 @@ app.use(bodyParser.json()); // support json encoded bodies
 //Basic routes
 app.post('/signup', (request,response)=>{
     console.log("in post");
-    const newUser = User({
-        first_name : request.body.firstName,
-        last_name : request.body.lastName,
-        email : request.body.email,
-        password : request.body.password,
-        created_at : new Date(),
-        updated_at : null,
-        wants_msg : request.body.wantsPromotions
-    });
-    User.find({ email: request.body.email}, function(err, user) {
-        if (user !== []) {
+    User.findOne({ email: request.body.email}, function(err, user) {
+        if (user !== null) {
             response.send("user exists");
         } else {
+            const newUser = User();
+            newUser.first_name = request.body.firstName;
+            newUser.last_name = request.body.lastName;
+            newUser.email = request.body.email;
+            newUser.created_at = new Date();
+            newUser.wants_msg = request.body.wantsPromotions;
+            newUser.setPassword(request.body.password);
             newUser.save(function(err) {
                 if (err) {
                     response.send("error");
                 }
-
-                User.find({ email: request.body.email }, function(err, user) {
-                    if (err) {
-                        response.send("Email signing up. Please try again.");
-                    }
-
-                    // object of the user
-                    response.send(user[0]);
-                });
-
+                response.send(newUser);
                 console.log('User created!');
             });
         }
@@ -44,14 +33,18 @@ app.post('/signup', (request,response)=>{
 });
 
 app.post('/signin', (request,response)=>{
-    User.find({ email: request.body.email, password: request.body.password}, function(err, user) {
+    User.findOne({ email: request.body.email}, function(err, user) {
         if (err) {
             response.send("error");
-        } else if (user.length === 0) {
+        } else if (user === null) {
             response.send("dne");
         } else {
-            response.send(user[0]);
-            console.log("Signed In");
+            if (user.validPassword(request.body.password)) {
+                response.send(user);
+                console.log("Signed In");
+            } else {
+                response.send("incorrect password");
+            }
         }
     });
 });
