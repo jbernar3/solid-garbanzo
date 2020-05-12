@@ -95,7 +95,7 @@ class UserService {
         });
     }
 
-    static async NewSource(userID, categoryID, url, callback) {
+    static async NewSource(userID, categoryID, url, title, callback) {
         User.findById(userID, function(err, user) {
             if (err) {
                 callback(null, "error finding user");
@@ -106,7 +106,11 @@ class UserService {
                     } else if (resource === null) {
                         // add source document
                         const newSource = new Resource();
-                        newSource.title = url;
+                        if (title === null || title === "") {
+                            newSource.title = url;
+                        } else {
+                            newSource.title = title;
+                        }
                         newSource.url = url;
                         newSource.countUse = 1;
                         newSource.featuredCategories = [categoryID];

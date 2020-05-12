@@ -53,7 +53,7 @@ app.post('/new_category', (request,response)=>{
 
 app.post('/new_source', (request,response)=> {
     new Promise(function(resolve, reject) {
-        UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url,
+        UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle,
             function(err, result) {
                 if (err) {
                     reject(err);
