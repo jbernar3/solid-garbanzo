@@ -134,25 +134,36 @@ app.post('/new_source', (request,response)=> {
                         })
                     });
                 } else {
-                    resource.countUse++;
-                    resource.featuredCategories.push(request.body.categoryID);
-                    resource.save(function(err) {
-                        if (err) response.send("error when saving resource stat updates");
-                        for (let i=0; i<user.categories.length; i++) {
-                            if (user.categories[i].category_id === request.body.categoryID) {
-                                user.categories[i].sources.push({source_id: resource._id, source_name: resource.title});
-                                break;
+                    console.log("IN ELSE FOR RESOURCE");
+                    console.log(request.body);
+                    let userHasSource = false;
+                    for (let i=0; i<user.categories.length; i++) {
+                        if (user.categories[i].category_id === request.body.categoryID) {
+                            for (let j=0; j<user.categories[i].sources.length; j++) {
+                                if (user.categories[i].sources[j].source_id === resource._id) {
+                                    userHasSource = true;
+                                }
                             }
+                            if (!userHasSource) {
+                                user.categories[i].sources.push({source_id: resource._id, source_name: resource.title});
+                            }
+                            break;
                         }
-                        user.save(function(err){
+                    }
+                    if (!userHasSource) {
+                        user.save(function (err) {
                             if (err) {
                                 response.send(err);
                             } else {
-                                response.send(resource);
+                                resource.countUse++;
+                                resource.featuredCategories.push(request.body.categoryID);
+                                resource.save(function(err) {
+                                    if (err) response.send(err);
+                                    response.send(resource);
+                                });
                             }
                         })
-
-                    });
+                    }
                 }
             });
         }
