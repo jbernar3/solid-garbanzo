@@ -23,7 +23,7 @@ app.post('/signup', (request,response)=>{
             newUser.created_at = new Date();
             newUser.wants_msg = request.body.wantsPromotions;
             newUser.setPassword(request.body.password);
-            newUser.categories = new Map();
+            newUser.categories = [];
             newUser.save(function(err) {
                 if (err) {
                     response.send("error");
@@ -68,7 +68,7 @@ app.post('/new_category', (request,response)=>{
                             response.send("error");
                         } else {
                             // update users saved categories
-                            user.categories.set(savedCategory._id.toString(), { category_name: savedCategory.name, sources: new Map()});
+                            user.categories.push({category_id: savedCategory._id, category_name: savedCategory.name, sources: []});
                             user.save(function(err) {
                                 if (err) {
                                     response.send("error adding category to user");
@@ -84,7 +84,7 @@ app.post('/new_category', (request,response)=>{
                         response.send("already exists");
                     } else {
                         // update users saved categories
-                        user.categories.set(category._id.toString(), { category_name: category.name, sources: new Map()});
+                        user.categories.push({category_id: category._id, category_name: category.name, sources: []});
                         user.save(function(err) {
                             if (err) {
                                 response.send("error adding category to user");
@@ -114,10 +114,17 @@ app.post('/new_source', (request,response)=> {
                     newSource.title = "Fake Title";
                     newSource.url = request.body.url;
                     newSource.countUse = 1;
+                    console.log("THIS IS CATEGORY ID");
+                    console.log(request.body.categoryID);
                     newSource.featuredCategories = [request.body.categoryID];
                     newSource.save(function(err, savedSource) {
                         // add to user's sources in specified category
-                        user.categories.get(request.body.categoryID).sources.set(savedSource._id.toString(), "Personal Fake Title");
+                        for (let i=0; i<user.categories.length; i++) {
+                            if (user.categories[i].category_id === request.body.categoryID) {
+                                user.categories[i].sources.push({source_id: savedSource._id, source_name: savedSource.title});
+                                break;
+                            }
+                        }
                         user.save(function(err){
                             if (err) {
                                 response.send(err);
@@ -131,7 +138,12 @@ app.post('/new_source', (request,response)=> {
                     resource.featuredCategories.push(request.body.categoryID);
                     resource.save(function(err) {
                         if (err) response.send("error when saving resource stat updates");
-                        user.categories.get(request.body.categoryID).sources.set(resource._id.toString(), { source_name: "Personal Fake Title"});
+                        for (let i=0; i<user.categories.length; i++) {
+                            if (user.categories[i].category_id === request.body.categoryID) {
+                                user.categories[i].sources.push({source_id: resource._id, source_name: resource.title});
+                                break;
+                            }
+                        }
                         user.save(function(err){
                             if (err) {
                                 response.send(err);

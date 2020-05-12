@@ -4,12 +4,14 @@ const Schema = mongoose.Schema;
 const crypto = require('crypto');
 
 const userSourceSchema = new Schema({
+    source_id: {type: String, required: true},
     source_name: {type: String, required: false}
 });
 
 const userCategorySchema = new Schema({
+    category_id: {type: String, required: true},
     category_name: {type: String, required: false},
-    sources: {type: Map, of: userSourceSchema, required: true}
+    sources: [userSourceSchema]
 });
 
 // create a schema
@@ -21,7 +23,7 @@ const userSchema = new Schema({
     salt: {type: String, required: true},
     created_at: Date,
     wants_msg: {type: Boolean, required: true},
-    categories: {type: Map, of: userCategorySchema},
+    categories: [userCategorySchema],
 });
 
 userSchema.methods.setPassword = function(password) {
