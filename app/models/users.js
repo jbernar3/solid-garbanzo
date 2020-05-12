@@ -51,6 +51,33 @@ userSchema.methods.hasCategory = function(categoryName) {
     return false;
 };
 
+userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle) {
+    for (let i=0; i<this.categories.length; i++) {
+        if (this.categories[i].category_id === categoryID) {
+            this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle});
+            break;
+        }
+    }
+};
+
+userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle) {
+    let userHasSource = false;
+    for (let i=0; i<this.categories.length; i++) {
+        if (this.categories[i].category_id === categoryID) {
+            for (let j=0; j<this.categories[i].sources.length; j++) {
+                if (this.categories[i].sources[j].source_id === sourceID) {
+                    userHasSource = true;
+                }
+            }
+            if (!userHasSource) {
+                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle});
+            }
+            break;
+        }
+    }
+    return userHasSource;
+};
+
 // the schema is useless so far
 // we need to create a model using it
 const User = mongoose.model('User', userSchema);

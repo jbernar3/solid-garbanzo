@@ -9,6 +9,13 @@ const sourceSchema = new Schema({
     featuredCategories: {type: Array, required: true}
 });
 
+sourceSchema.methods.updateFeaturedCategories = function(categoryID) {
+    if (!this.featuredCategories.contains(categoryID)) {
+        this.featuredCategories.push(categoryID);
+    }
+    this.countUse++;
+};
+
 // the schema is useless so far
 // we need to create a model using it
 const Source = mongoose.model('Source', sourceSchema);
