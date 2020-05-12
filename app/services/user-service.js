@@ -1,6 +1,3 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
 const User = require('../models/users');
 const Category = require('../models/categories');
 const Resource = require('../models/sources');
@@ -71,7 +68,7 @@ class UserService {
                                     if (err) {
                                         callback(null, "error adding category to user");
                                     } else {
-                                        callback(null, savedCategory);
+                                        callback(null, user.categories);
                                     }
                                 })
                             }
@@ -88,7 +85,7 @@ class UserService {
                                 if (err) {
                                     callback(null, "error adding category to user");
                                 } else {
-                                    callback(null, category);
+                                    callback(null, user.categories);
                                 }
                             })
                         }
@@ -109,7 +106,7 @@ class UserService {
                     } else if (resource === null) {
                         // add source document
                         const newSource = new Resource();
-                        newSource.title = "Fake Title";
+                        newSource.title = url;
                         newSource.url = url;
                         newSource.countUse = 1;
                         newSource.featuredCategories = [categoryID];
@@ -120,7 +117,7 @@ class UserService {
                                 if (err) {
                                     callback(null, "error");
                                 } else {
-                                    callback(null, savedSource);
+                                    callback(null, user.categories);
                                 }
                             })
                         });
@@ -134,7 +131,7 @@ class UserService {
                                     resource.updateFeaturedCategories(categoryID);
                                     resource.save(function(err) {
                                         if (err) callback(null, err);
-                                        callback(null, resource);
+                                        callback(null, user.categories);
                                     });
                                 }
                             })

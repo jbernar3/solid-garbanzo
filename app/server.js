@@ -64,6 +64,28 @@ app.post('/new_source', (request,response)=> {
     }).then((result) => response.send(result));
 });
 
+app.post('/new_category_source', (request, response) => {
+    new Promise(function(resolve, reject) {
+        UserService.NewCategory(request.body.userID, request.body.categoryName,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((result) => new Promise(function(resolve, reject) {
+        UserService.NewSource(request.body.userID, result[result.length - 1]._id, request.body.url,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((finalResult) => response.send(finalResult)));
+});
+
 
 //Binding to a port
 app.listen(port, ()=>{
