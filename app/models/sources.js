@@ -10,7 +10,7 @@ const sourceSchema = new Schema({
 });
 
 sourceSchema.methods.updateFeaturedCategories = function(categoryID) {
-    if (!this.featuredCategories.contains(categoryID)) {
+    if (!this.featuredCategories.includes(categoryID)) {
         this.featuredCategories.push(categoryID);
     }
     this.countUse++;

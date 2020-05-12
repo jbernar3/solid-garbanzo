@@ -65,8 +65,11 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i].category_id === categoryID) {
             for (let j=0; j<this.categories[i].sources.length; j++) {
+                console.log(this.categories[i].sources[j].source_id);
+                console.log(sourceID);
                 if (this.categories[i].sources[j].source_id === sourceID) {
                     userHasSource = true;
+                    break;
                 }
             }
             if (!userHasSource) {
@@ -75,6 +78,7 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
             break;
         }
     }
+    console.log(userHasSource);
     return userHasSource;
 };
 

@@ -115,7 +115,7 @@ class UserService {
                         newSource.featuredCategories = [categoryID];
                         newSource.save(function(err, savedSource) {
                             // add to user's sources in specified category
-                            user.addUnregisteredSource(categoryID, savedSource._id, savedSource.title);
+                            user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title);
                             user.save(function(err){
                                 if (err) {
                                     callback(null, "error");
@@ -125,7 +125,7 @@ class UserService {
                             })
                         });
                     } else {
-                        const userHasSource = user.addRegisteredSource(categoryID, resource._id, resource.title);
+                        const userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title);
                         if (!userHasSource) {
                             user.save(function (err) {
                                 if (err) {
@@ -138,6 +138,8 @@ class UserService {
                                     });
                                 }
                             })
+                        } else {
+                            callback(null, "source is already in this category");
                         }
                     }
                 });
