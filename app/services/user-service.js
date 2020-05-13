@@ -63,7 +63,7 @@ class UserService {
                             } else {
                                 // update users saved categories
                                 user.categories.push({category_id: savedCategory._id,
-                                    category_name: savedCategory.name, sources: []});
+                                    category_name: savedCategory.name, sources: [], sub_categories: []});
                                 user.save(function(err) {
                                     if (err) {
                                         callback(null, "error adding category to user");
@@ -80,7 +80,7 @@ class UserService {
                         } else {
                             // update users saved categories
                             user.categories.push({category_id: category._id,
-                                category_name: category.name, sources: []});
+                                category_name: category.name, sources: [], sub_categories: []});
                             user.save(function(err) {
                                 if (err) {
                                     callback(null, "error adding category to user");

@@ -8,10 +8,17 @@ const userSourceSchema = new Schema({
     source_name: {type: String, required: false}
 });
 
+const userSubCategorySchema = new Schema({
+    category_id: {type: String, required: true},
+    category_name: {type: String, required: true},
+    sources: [userSourceSchema],
+});
+
 const userCategorySchema = new Schema({
     category_id: {type: String, required: true},
     category_name: {type: String, required: false},
-    sources: [userSourceSchema]
+    sources: [userSourceSchema],
+    sub_categories: [userSubCategorySchema]
 });
 
 // create a schema
