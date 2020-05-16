@@ -1,6 +1,7 @@
 const User = require('../models/users');
 const Category = require('../models/categories');
 const Resource = require('../models/sources');
+const PublicCategories = require('../models/public_categories');
 
 class UserService {
     static async Signup(email, firstName, lastName, wantsMsg, password, callback) {
@@ -121,7 +122,18 @@ class UserService {
                                 if (err) {
                                     callback(null, "error");
                                 } else {
-                                    callback(null, user.categories);
+                                    PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
+                                        if (pubCategory !== null) {
+                                            pubCategory.last_updated = new Date();
+                                            pubCategory.save(function(err) {
+                                                if (err) {
+                                                    callback(null, "error changing status of public category");
+                                                } else {
+                                                    callback(null, user.categories);
+                                                }
+                                            })
+                                        }
+                                    });
                                 }
                             })
                         });

@@ -6,6 +6,7 @@ const Category = require('./models/categories');
 const Resource = require('./models/sources');
 const port = process.env.PORT || 3000;
 const UserService = require('./services/user-service');
+const PublicCategoriesService = require('./services/public-categories-service');
 const Scraper = require('./services/scraper');
 
 app.use(bodyParser.urlencoded({ extended: true}));
@@ -85,6 +86,32 @@ app.post('/new_category_source', (request, response) => {
                 }
             });
     }).then((finalResult) => response.send(finalResult)));
+});
+
+app.post('/post_category', (request, response) => {
+    new Promise(function(resolve, reject) {
+        PublicCategoriesService.PostCategory(request.body.userID, request.body.categoryID,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((result) => response.send(result));
+});
+
+app.post('/get_global_categories', (request, response) => {
+    new Promise(function(resolve, reject) {
+        PublicCategoriesService.GetGlobalCategories(
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((result) => response.send(result));
 });
 
 
