@@ -19,7 +19,8 @@ const userCategorySchema = new Schema({
     category_id: {type: String, required: true},
     category_name: {type: String, required: false},
     sources: [userSourceSchema],
-    sub_categories: [userSubCategorySchema]
+    sub_categories: [userSubCategorySchema],
+    isPublic: {type: Boolean, required: true}
 });
 
 // create a schema
@@ -53,6 +54,16 @@ userSchema.methods.validPassword = function(password) {
 userSchema.methods.hasCategory = function(categoryName) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i].category_name === categoryName) {
+            return true;
+        }
+    }
+    return false;
+};
+
+userSchema.methods.toggleIsPublicCategory = function(categoryID) {
+    for (let i=0; i<this.categories.length; i++) {
+        if (this.categories[i]._id === categoryID) {
+            this.categories[i].isPublic = !this.categories[i].isPublic;
             return true;
         }
     }
