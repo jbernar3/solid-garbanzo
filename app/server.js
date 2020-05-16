@@ -60,10 +60,12 @@ app.post('/new_source', (request,response)=> {
                 if (err) {
                     reject(err);
                 } else {
+                    console.log("resolving the result");
+                    console.log(result);
                     resolve(result);
                 }
             });
-    }).then((result) => response.send(result));
+    }).then((result) => response.send(result)).then(() => console.log("Finished New Source Request"));
 });
 
 app.post('/new_category_source', (request, response) => {

@@ -120,7 +120,7 @@ class UserService {
                             user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes);
                             user.save(function(err){
                                 if (err) {
-                                    callback(null, "error");
+                                    callback(null, err);
                                 } else {
                                     PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
                                         if (pubCategory !== null) {
@@ -129,6 +129,7 @@ class UserService {
                                                 if (err) {
                                                     callback(null, "error changing status of public category");
                                                 } else {
+                                                    console.log("about to hit callback");
                                                     callback(null, user.categories);
                                                 }
                                             })
@@ -146,8 +147,11 @@ class UserService {
                                 } else {
                                     resource.updateFeaturedCategories(categoryID);
                                     resource.save(function(err) {
-                                        if (err) callback(null, err);
-                                        callback(null, user.categories);
+                                        if (err) {
+                                            callback(null, err);
+                                        } else {
+                                            callback(null, user.categories);
+                                        }
                                     });
                                 }
                             })
