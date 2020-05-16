@@ -133,6 +133,8 @@ class UserService {
                                                     callback(null, user.categories);
                                                 }
                                             })
+                                        } else {
+                                            callback(null, user.categories);
                                         }
                                     });
                                 }
@@ -150,7 +152,21 @@ class UserService {
                                         if (err) {
                                             callback(null, err);
                                         } else {
-                                            callback(null, user.categories);
+                                            PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
+                                                if (pubCategory !== null) {
+                                                    pubCategory.last_updated = new Date();
+                                                    pubCategory.save(function(err) {
+                                                        if (err) {
+                                                            callback(null, "error changing status of public category");
+                                                        } else {
+                                                            console.log("about to hit callback");
+                                                            callback(null, user.categories);
+                                                        }
+                                                    })
+                                                } else {
+                                                    callback(null, user.categories);
+                                                }
+                                            });
                                         }
                                     });
                                 }
