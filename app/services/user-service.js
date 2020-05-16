@@ -95,7 +95,7 @@ class UserService {
         });
     }
 
-    static async NewSource(userID, categoryID, url, title, callback) {
+    static async NewSource(userID, categoryID, url, title, notes, callback) {
         User.findById(userID, function(err, user) {
             if (err) {
                 callback(null, "error finding user");
@@ -116,7 +116,7 @@ class UserService {
                         newSource.featuredCategories = [categoryID];
                         newSource.save(function(err, savedSource) {
                             // add to user's sources in specified category
-                            user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title);
+                            user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes);
                             user.save(function(err){
                                 if (err) {
                                     callback(null, "error");
@@ -126,7 +126,7 @@ class UserService {
                             })
                         });
                     } else {
-                        const userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title);
+                        const userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes);
                         if (!userHasSource) {
                             user.save(function (err) {
                                 if (err) {

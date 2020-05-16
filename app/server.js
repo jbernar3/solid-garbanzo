@@ -6,6 +6,7 @@ const Category = require('./models/categories');
 const Resource = require('./models/sources');
 const port = process.env.PORT || 3000;
 const UserService = require('./services/user-service');
+const Scraper = require('./services/scraper');
 
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json()); // support json encoded bodies
@@ -53,7 +54,7 @@ app.post('/new_category', (request,response)=>{
 
 app.post('/new_source', (request,response)=> {
     new Promise(function(resolve, reject) {
-        UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle,
+        UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle, request.body.sourceNotes,
             function(err, result) {
                 if (err) {
                     reject(err);
@@ -75,7 +76,7 @@ app.post('/new_category_source', (request, response) => {
                 }
             });
     }).then((result) => new Promise(function(resolve, reject) {
-        UserService.NewSource(request.body.userID, result[result.length - 1]._id, request.body.url,
+        UserService.NewSource(request.body.userID, result[result.length - 1]._id, request.body.url, request.body.sourceNotes,
             function(err, result) {
                 if (err) {
                     reject(err);

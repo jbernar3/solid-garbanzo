@@ -5,7 +5,8 @@ const crypto = require('crypto');
 
 const userSourceSchema = new Schema({
     source_id: {type: String, required: true},
-    source_name: {type: String, required: false}
+    source_name: {type: String, required: false},
+    source_notes: {type: String, required: false}
 });
 
 const userSubCategorySchema = new Schema({
@@ -58,16 +59,16 @@ userSchema.methods.hasCategory = function(categoryName) {
     return false;
 };
 
-userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle) {
+userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i].category_id === categoryID) {
-            this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle});
+            this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes});
             break;
         }
     }
 };
 
-userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle) {
+userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes) {
     let userHasSource = false;
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i].category_id === categoryID) {
@@ -80,7 +81,7 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
                 }
             }
             if (!userHasSource) {
-                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle});
+                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes});
             }
             break;
         }
