@@ -8,6 +8,16 @@ const port = process.env.PORT || 3000;
 const UserService = require('./services/user-service');
 const PublicCategoriesService = require('./services/public-categories-service');
 const Scraper = require('./services/scraper');
+const puppeteer = require('puppeteer');
+const browser = new Promise(function(resolve, reject) {
+    Scraper.openBrowser(function(err, result) {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(result);
+        }
+    });
+}).then((result) => result);
 
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json()); // support json encoded bodies
@@ -106,6 +116,19 @@ app.post('/post_category', (request, response) => {
 app.post('/get_global_categories', (request, response) => {
     new Promise(function(resolve, reject) {
         PublicCategoriesService.GetGlobalCategories(
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((result) => response.send(result));
+});
+
+app.post('/get_scraped_source', (request, response) => {
+    new Promise(function(resolve, reject) {
+        Scraper.scrapeTitle(browser, request.body.url,
             function(err, result) {
                 if (err) {
                     reject(err);

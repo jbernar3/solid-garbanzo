@@ -39,7 +39,15 @@ class PublicCategoriesService {
 
     static async GetGlobalCategories(callback) {
         PublicCategories.find({}).sort('last_updated').exec(function(err, categories) {
-            callback(null, categories);
+            const global_categories = [];
+            for (let i=0; i<categories.length; i++) {
+                User.findOne({_id: categories[i].sharer_id}, function(err, sharer) {
+                    if (!err) {
+                        global_categories.push(sharer.getUserCategory(categories[i].category_id));
+                    }
+                })
+            }
+            callback(null, global_categories);
         })
     }
 }

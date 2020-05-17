@@ -60,6 +60,15 @@ userSchema.methods.hasCategory = function(categoryName) {
     return false;
 };
 
+userSchema.methods.getUserCategory = function(categoryID) {
+    for (let i=0; i<this.categories.length; i++) {
+        if (this.categories[i]._id === categoryID) {
+            return this.categories[i];
+        }
+    }
+    return null;
+};
+
 userSchema.methods.toggleIsPublicCategory = function(categoryID) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i]._id === categoryID) {
