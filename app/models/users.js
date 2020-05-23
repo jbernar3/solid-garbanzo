@@ -7,7 +7,9 @@ const userSourceSchema = new Schema({
     source_id: {type: String, required: true},
     source_name: {type: String, required: false},
     source_notes: {type: String, required: false},
-    source_img: {data: Buffer, contentType: String}
+    source_urlImgFlag: {type: Boolean, required: true},
+    source_img: {data: Buffer, contentType: String, required: false},
+    source_urlImg: {type: String, required: false}
 });
 
 const userSubCategorySchema = new Schema({
@@ -80,29 +82,38 @@ userSchema.methods.toggleIsPublicCategory = function(categoryID) {
     return false;
 };
 
-userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg) {
+userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i].category_id === categoryID) {
-            this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_img: sourceImg});
-            break;
+            if (urlFlag) {
+                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg});
+                break;
+            } else {
+                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_img: sourceImg});
+                break;
+            }
         }
     }
 };
 
-userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg) {
+userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag) {
     let userHasSource = false;
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i].category_id === categoryID) {
             for (let j=0; j<this.categories[i].sources.length; j++) {
-                console.log(this.categories[i].sources[j].source_id);
-                console.log(sourceID);
                 if (this.categories[i].sources[j].source_id === sourceID) {
                     userHasSource = true;
                     break;
                 }
             }
             if (!userHasSource) {
-                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_img: sourceImg});
+                if (urlFlag) {
+                    this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg});
+                    break;
+                } else {
+                    this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_img: sourceImg});
+                    break;
+                }
             }
             break;
         }

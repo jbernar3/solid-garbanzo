@@ -7,7 +7,9 @@ const sourceSchema = new Schema({
     url: {type: String, required: true},
     countUse: {type: Number, required: true},
     featuredCategories: {type: Array, required: true},
-    img: {data: Buffer, contentType: String}
+    urlImgFlag: {type: Boolean, required: true},
+    img: {data: Buffer, contentType: String, required: false},
+    urlImg: {type: String, required: false}
 });
 
 sourceSchema.methods.updateFeaturedCategories = function(categoryID) {

@@ -110,10 +110,20 @@ class UserService {
                         const page = await browser.newPage();
                         await page.goto(url);
                         const suggested_title = await page.title();
-                        await page.screenshot({
-                            path: 'source_screenshots/' + r + '.png',
-                            fullPage: false
-                        });
+                        let urlYoutubeImg = null;
+                        if (url.includes("youtube.com")) {
+                            let video_id = url.split('v=')[1];
+                            let ampersandPosition = video_id.indexOf('&');
+                            if(ampersandPosition !== -1) {
+                                video_id = video_id.substring(0, ampersandPosition);
+                            }
+                            urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg"
+                        } else {
+                            await page.screenshot({
+                                path: 'source_screenshots/' + r + '.png',
+                                fullPage: false
+                            });
+                        }
                         // add source document
                         const newSource = new Resource();
                         if (title === null || title === "") {
@@ -124,12 +134,21 @@ class UserService {
                         newSource.url = url;
                         newSource.countUse = 1;
                         newSource.featuredCategories = [categoryID];
-                        newSource.img.data = fs.readFileSync('source_screenshots/' + r + '.png');
-                        newSource.img.contentType = 'image/png';
+                        newSource.urlImgFlag = (urlYoutubeImg !== null);
+                        if (urlYoutubeImg) {
+                            newSource.urlImg = urlYoutubeImg;
+                        } else {
+                            newSource.img.data = fs.readFileSync('source_screenshots/' + r + '.png');
+                            newSource.img.contentType = 'image/png';
+                        }
                         newSource.save(function(err, savedSource) {
                             // add to user's sources in specified category
-                            fs.unlinkSync('source_screenshots/' + r + '.png');
-                            user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.img);
+                            if (urlYoutubeImg === null) {
+                                fs.unlinkSync('source_screenshots/' + r + '.png');
+                                user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.img, savedSource.urlImgFlag);
+                            } else {
+                                user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, urlYoutubeImg, savedSource.urlImgFlag);
+                            }
                             user.save(function(err){
                                 if (err) {
                                     callback(null, err);
@@ -153,7 +172,12 @@ class UserService {
                             })
                         });
                     } else {
-                        const userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img);
+                        let userHasSource;
+                        if (resource.urlImgFlag) {
+                            userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag);
+                        } else {
+                            userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img, resource.urlImgFlag);
+                        }
                         if (!userHasSource) {
                             user.save(function (err) {
                                 if (err) {
