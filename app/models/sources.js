@@ -6,7 +6,8 @@ const sourceSchema = new Schema({
     title: {type: String, required: true},
     url: {type: String, required: true},
     countUse: {type: Number, required: true},
-    featuredCategories: {type: Array, required: true}
+    featuredCategories: {type: Array, required: true},
+    img: {data: Buffer, contentType: String}
 });
 
 sourceSchema.methods.updateFeaturedCategories = function(categoryID) {

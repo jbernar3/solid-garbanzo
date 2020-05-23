@@ -13,7 +13,15 @@ const puppeteer = require('puppeteer');
 let global_browser = false;
 async function init_puppeteer() {
     if(global_browser === false )
-        global_browser = await puppeteer.launch({headless: false  , args:['--no-sandbox']});
+        global_browser = await puppeteer.launch({
+            headless: true  ,
+            args:['--no-sandbox'],
+            defaultViewport: {
+                width: 800,
+                height: 500,
+                isLandscape: true
+            }
+        });
 }
 
 app.use(bodyParser.urlencoded({ extended: true}));

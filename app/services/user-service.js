@@ -2,6 +2,7 @@ const User = require('../models/users');
 const Category = require('../models/categories');
 const Resource = require('../models/sources');
 const PublicCategories = require('../models/public_categories');
+const fs = require('fs');
 
 class UserService {
     static async Signup(email, firstName, lastName, wantsMsg, password, callback) {
@@ -97,12 +98,13 @@ class UserService {
     }
 
     static async NewSource(userID, categoryID, url, title, notes, browser, callback) {
+        const r = Math.random().toString(36).substring(7);
         const page = await browser.newPage();
         await page.goto(url);
         const suggested_title = await page.title();
         await page.screenshot({
-            path: 'test-screenshot.png',
-            fullPage: true
+            path: 'source_screenshots/' + r + '.png',
+            fullPage: false
         });
         User.findById(userID, function(err, user) {
             if (err) {
@@ -122,8 +124,10 @@ class UserService {
                         newSource.url = url;
                         newSource.countUse = 1;
                         newSource.featuredCategories = [categoryID];
+                        newSource.img.data = fs.readFileSync('source_screenshots/' + r + '.png');
                         newSource.save(function(err, savedSource) {
                             // add to user's sources in specified category
+                            fs.unlinkSync('source_screenshots/' + r + '.png');
                             user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes);
                             user.save(function(err){
                                 if (err) {
