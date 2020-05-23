@@ -125,10 +125,11 @@ class UserService {
                         newSource.countUse = 1;
                         newSource.featuredCategories = [categoryID];
                         newSource.img.data = fs.readFileSync('source_screenshots/' + r + '.png');
+                        newSource.img.contentType = 'image/png';
                         newSource.save(function(err, savedSource) {
                             // add to user's sources in specified category
                             fs.unlinkSync('source_screenshots/' + r + '.png');
-                            user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes);
+                            user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.img);
                             user.save(function(err){
                                 if (err) {
                                     callback(null, err);

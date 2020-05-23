@@ -6,7 +6,8 @@ const crypto = require('crypto');
 const userSourceSchema = new Schema({
     source_id: {type: String, required: true},
     source_name: {type: String, required: false},
-    source_notes: {type: String, required: false}
+    source_notes: {type: String, required: false},
+    source_img: {data: Buffer, contentType: String}
 });
 
 const userSubCategorySchema = new Schema({
@@ -79,10 +80,10 @@ userSchema.methods.toggleIsPublicCategory = function(categoryID) {
     return false;
 };
 
-userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes) {
+userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i].category_id === categoryID) {
-            this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes});
+            this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_img: sourceImg});
             break;
         }
     }
