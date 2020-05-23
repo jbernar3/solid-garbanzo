@@ -9,15 +9,12 @@ const UserService = require('./services/user-service');
 const PublicCategoriesService = require('./services/public-categories-service');
 const Scraper = require('./services/scraper');
 const puppeteer = require('puppeteer');
-const browser = new Promise(function(resolve, reject) {
-    Scraper.openBrowser(function(err, result) {
-        if (err) {
-            reject(err);
-        } else {
-            resolve(result);
-        }
-    });
-}).then((result) => result);
+
+let global_browser = false;
+async function init_puppeteer() {
+    if(global_browser === false )
+        global_browser = await puppeteer.launch({headless: false  , args:['--no-sandbox']});
+}
 
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json()); // support json encoded bodies
@@ -65,7 +62,7 @@ app.post('/new_category', (request,response)=>{
 
 app.post('/new_source', (request,response)=> {
     new Promise(function(resolve, reject) {
-        UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle, request.body.sourceNotes,
+        UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle, request.body.sourceNotes, global_browser,
             function(err, result) {
                 if (err) {
                     reject(err);
@@ -142,5 +139,6 @@ app.post('/get_scraped_source', (request, response) => {
 
 //Binding to a port
 app.listen(port, ()=>{
+    init_puppeteer().then(r => console.log("Browser setup"));
     console.log('Express server started at port 3000');
 });

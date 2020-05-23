@@ -96,7 +96,14 @@ class UserService {
         });
     }
 
-    static async NewSource(userID, categoryID, url, title, notes, callback) {
+    static async NewSource(userID, categoryID, url, title, notes, browser, callback) {
+        const page = await browser.newPage();
+        await page.goto(url);
+        const suggested_title = await page.title();
+        await page.screenshot({
+            path: 'test-screenshot.png',
+            fullPage: true
+        });
         User.findById(userID, function(err, user) {
             if (err) {
                 callback(null, "error finding user");
@@ -110,7 +117,7 @@ class UserService {
                         if (title === null || title === "") {
                             newSource.title = url;
                         } else {
-                            newSource.title = title;
+                            newSource.title = suggested_title;
                         }
                         newSource.url = url;
                         newSource.countUse = 1;
