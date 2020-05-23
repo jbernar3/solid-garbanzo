@@ -46,6 +46,18 @@ class UserService {
         });
     }
 
+    static async GetCategories(userID, callback) {
+        User.findById(userID, function (err, user) {
+            if (err) {
+                callback(null, "error");
+            } else if (user === null) {
+                callback(null, "user not found");
+            } else {
+                callback(null, user.categories);
+            }
+        })
+    }
+
     static async NewCategory(userID, categoryName, callback) {
         User.findById(userID, function(err, user) {
             if (err) {
@@ -123,6 +135,7 @@ class UserService {
                                 path: 'source_screenshots/' + r + '.png',
                                 fullPage: false
                             });
+                            await page.close();
                         }
                         // add source document
                         const newSource = new Resource();

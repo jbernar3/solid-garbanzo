@@ -55,6 +55,19 @@ app.post('/signin', (request,response)=>{
     }).then((result) => response.send(result));
 });
 
+app.post('/get_categories', (request, response)=> {
+    new Promise(function(resolve, reject) {
+        UserService.GetCategories(request.body.userID,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((result) => response.send(result));
+});
+
 app.post('/new_category', (request,response)=>{
     new Promise(function(resolve, reject) {
         UserService.NewCategory(request.body.userID, request.body.catName,
@@ -69,18 +82,17 @@ app.post('/new_category', (request,response)=>{
 });
 
 app.post('/new_source', (request,response)=> {
+    //response.setHeader('Content-Type', 'application/json');
     new Promise(function(resolve, reject) {
         UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle, request.body.sourceNotes, global_browser,
             function(err, result) {
                 if (err) {
                     reject(err);
                 } else {
-                    console.log("resolving the result");
-                    console.log(result);
                     resolve(result);
                 }
             });
-    }).then((result) => response.send(result)).then(() => console.log("Finished New Source Request"));
+    }).then((result) => response.write(JSON.stringify(result))).then(() => console.log("Hello World!")).then(() => response.end());
 });
 
 app.post('/new_category_source', (request, response) => {
