@@ -98,22 +98,22 @@ class UserService {
     }
 
     static async NewSource(userID, categoryID, url, title, notes, browser, callback) {
-        const r = Math.random().toString(36).substring(7);
-        const page = await browser.newPage();
-        await page.goto(url);
-        const suggested_title = await page.title();
-        await page.screenshot({
-            path: 'source_screenshots/' + r + '.png',
-            fullPage: false
-        });
         User.findById(userID, function(err, user) {
             if (err) {
                 callback(null, "error finding user");
             } else {
-                Resource.findOne({ url: url }, function(err, resource) {
+                Resource.findOne({ url: url }, async function(err, resource) {
                     if (err) {
                         callback(null, "error finding source");
                     } else if (resource === null) {
+                        const r = Math.random().toString(36).substring(7);
+                        const page = await browser.newPage();
+                        await page.goto(url);
+                        const suggested_title = await page.title();
+                        await page.screenshot({
+                            path: 'source_screenshots/' + r + '.png',
+                            fullPage: false
+                        });
                         // add source document
                         const newSource = new Resource();
                         if (title === null || title === "") {
@@ -153,7 +153,7 @@ class UserService {
                             })
                         });
                     } else {
-                        const userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes);
+                        const userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img);
                         if (!userHasSource) {
                             user.save(function (err) {
                                 if (err) {

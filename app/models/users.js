@@ -89,7 +89,7 @@ userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, source
     }
 };
 
-userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes) {
+userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg) {
     let userHasSource = false;
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i].category_id === categoryID) {
@@ -102,7 +102,7 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
                 }
             }
             if (!userHasSource) {
-                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes});
+                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_img: sourceImg});
             }
             break;
         }
