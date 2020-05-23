@@ -3,6 +3,7 @@ const Category = require('../models/categories');
 const Resource = require('../models/sources');
 const PublicCategories = require('../models/public_categories');
 const fs = require('fs');
+const sharp = require('sharp');
 
 class UserService {
     static async Signup(email, firstName, lastName, wantsMsg, password, callback) {
@@ -119,6 +120,8 @@ class UserService {
                         callback(null, "error finding source");
                     } else if (resource === null) {
                         const r = Math.random().toString(36).substring(7);
+                        const img_path = 'source_screenshots/' + r + '.png';
+                        const output_img_path = 'source_screenshots/output_' + r + '.png';
                         const page = await browser.newPage();
                         await page.goto(url);
                         const suggested_title = await page.title();
@@ -132,9 +135,10 @@ class UserService {
                             urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg"
                         } else {
                             await page.screenshot({
-                                path: 'source_screenshots/' + r + '.png',
+                                path: img_path,
                                 fullPage: false
                             });
+                            await sharp(img_path).resize({height: 240, width: 400}).toFile(output_img_path);
                             await page.close();
                         }
                         // add source document
@@ -151,13 +155,14 @@ class UserService {
                         if (urlYoutubeImg) {
                             newSource.urlImg = urlYoutubeImg;
                         } else {
-                            newSource.img.data = fs.readFileSync('source_screenshots/' + r + '.png');
+                            newSource.img.data = fs.readFileSync(output_img_path);
                             newSource.img.contentType = 'image/png';
                         }
                         newSource.save(function(err, savedSource) {
                             // add to user's sources in specified category
                             if (urlYoutubeImg === null) {
-                                fs.unlinkSync('source_screenshots/' + r + '.png');
+                                fs.unlinkSync(img_path);
+                                fs.unlinkSync(output_img_path);
                                 user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.img, savedSource.urlImgFlag);
                             } else {
                                 user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, urlYoutubeImg, savedSource.urlImgFlag);
