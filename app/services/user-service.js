@@ -105,7 +105,7 @@ class UserService {
         })
     }
 
-    static async NewCategory(userID, categoryName, callback) {
+    static async NewCategory(userID, categoryName, parentID, callback) {
         User.findById(userID, function(err, user) {
             if (err) {
                 callback(null, "error");
@@ -122,9 +122,7 @@ class UserService {
                             if (err) {
                                 callback(null, "error");
                             } else {
-                                // update users saved categories
-                                user.categories.push({category_id: savedCategory._id,
-                                    category_name: savedCategory.name, sources: [], sub_categories: [], isPublic: false});
+                                user.addNewCategory(savedCategory._id, savedCategory.name, parentID);
                                 user.save(function(err) {
                                     if (err) {
                                         callback(null, "error adding category to user");
@@ -139,9 +137,7 @@ class UserService {
                         if (user.hasCategory(category.name)) {
                             callback(null, "already exists");
                         } else {
-                            // update users saved categories
-                            user.categories.push({category_id: category._id,
-                                category_name: category.name, sources: [], sub_categories: [], isPublic: false});
+                            user.addNewCategory(category._id, category.name, parentID);
                             user.save(function(err) {
                                 if (err) {
                                     callback(null, "error adding category to user");

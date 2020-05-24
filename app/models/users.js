@@ -12,17 +12,11 @@ const userSourceSchema = new Schema({
     source_urlImg: {type: String, required: false}
 });
 
-const userSubCategorySchema = new Schema({
-    category_id: {type: String, required: true},
-    category_name: {type: String, required: true},
-    sources: [userSourceSchema],
-});
-
 const userCategorySchema = new Schema({
     category_id: {type: String, required: true},
     category_name: {type: String, required: false},
     sources: [userSourceSchema],
-    sub_categories: [userSubCategorySchema],
+    parent_id: {type: String, required: true},
     isPublic: {type: Boolean, required: true}
 });
 
@@ -52,6 +46,11 @@ userSchema.methods.validPassword = function(password) {
     const hash = crypto.pbkdf2Sync(password,
         this.salt, 1000, 64, `sha512`).toString(`hex`);
     return this.hash === hash;
+};
+
+userSchema.methods.addNewCategory = function(catID, catName, parentID) {
+    this.categories.push({category_id: catID,
+            category_name: catName, sources: [], parent_id: parentID, isPublic: false});
 };
 
 userSchema.methods.hasCategory = function(categoryName) {

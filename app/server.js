@@ -87,7 +87,7 @@ app.post('/delete_source', (request, response) => {
 
 app.post('/new_category', (request,response) => {
     new Promise(function(resolve, reject) {
-        UserService.NewCategory(request.body.userID, request.body.catName,
+        UserService.NewCategory(request.body.userID, request.body.catName, request.body.parentID,
             function(err, result) {
                 if (err) {
                     reject(err);
