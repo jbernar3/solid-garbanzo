@@ -50,11 +50,57 @@ class UserService {
     static async GetCategories(userID, callback) {
         User.findById(userID, function (err, user) {
             if (err) {
-                callback(null, "error");
+                callback(null, "system error");
             } else if (user === null) {
                 callback(null, "user not found");
             } else {
                 callback(null, user.categories);
+            }
+        })
+    }
+
+    static async DeleteSource(userID, categoryID, sourceID, callback) {
+        User.findById(userID, function(err, user) {
+            if (err) {
+                callback(null, "system error");
+            } else if (user === null) {
+                callback(null, "user not found");
+            } else {
+                const numCategories = user.categories.length;
+                for (let i=0; i<numCategories; i++) {
+                    if (user.categories[i]._id === categoryID) {
+                        const numSources = user.categories.sources.length;
+                        for (let j=0; j<numSources; j++) {
+                            if (user.categories[i].sources[j] === sourceID) {
+                                user.categories[i].sources.splice(j, 1);
+                                console.log("DELETED SOURCE: " + sourceID.toString());
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                callback(null, sourceID);
+            }
+        })
+    }
+
+    static async DeleteCategory(userID, categoryID, callback) {
+        User.findById(userID, function(err, user) {
+            if (err) {
+                callback(null, "system error");
+            } else if (user == null) {
+                callback(null, "user not found");
+            } else {
+                user.categories = user.categories.filter(category => category._id !== categoryID);
+                // const numCategories = user.categories.length;
+                // for (let i=0; i<numCategories; i++) {
+                //     if (user.categories[i]._id === categoryID) {
+                //         user.categories.splice(i, 1);
+                //         break;
+                //     }
+                // }
+                callback(null, categoryID);
             }
         })
     }

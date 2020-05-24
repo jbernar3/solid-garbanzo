@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json()); // support json encoded bodies
 
 //Basic routes
-app.post('/signup', async (request,response)=>{
+app.post('/signup', async (request,response) => {
     new Promise(function(resolve, reject) {
         UserService.Signup(request.body.email, request.body.firstName,
             request.body.lastName, request.body.wantsPromotions, request.body.password,
@@ -42,7 +42,7 @@ app.post('/signup', async (request,response)=>{
     }).then((result) => response.send(result));
 });
 
-app.post('/signin', (request,response)=>{
+app.post('/signin', (request,response) => {
     new Promise(function(resolve, reject) {
        UserService.Signin(request.body.email, request.body.password,
            function(err, result) {
@@ -55,7 +55,7 @@ app.post('/signin', (request,response)=>{
     }).then((result) => response.send(result));
 });
 
-app.post('/get_categories', (request, response)=> {
+app.post('/get_categories', (request, response) => {
     new Promise(function(resolve, reject) {
         UserService.GetCategories(request.body.userID,
             function(err, result) {
@@ -68,7 +68,24 @@ app.post('/get_categories', (request, response)=> {
     }).then((result) => response.send(result));
 });
 
-app.post('/new_category', (request,response)=>{
+app.post('/delete_category', (request, response) => {
+
+});
+
+app.post('/delete_source', (request, response) => {
+    new Promise(function(resolve, reject) {
+        UserService.DeleteSource(request.body.userID, request.body.categoryID, request.body.sourceID,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((result) => response.send(result));
+});
+
+app.post('/new_category', (request,response) => {
     new Promise(function(resolve, reject) {
         UserService.NewCategory(request.body.userID, request.body.catName,
             function(err, result) {
@@ -81,7 +98,7 @@ app.post('/new_category', (request,response)=>{
     }).then((result) => response.send(result));
 });
 
-app.post('/new_source', (request,response)=> {
+app.post('/new_source', (request,response) => {
     //response.setHeader('Content-Type', 'application/json');
     new Promise(function(resolve, reject) {
         UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle, request.body.sourceNotes, global_browser,
