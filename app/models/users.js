@@ -82,43 +82,45 @@ userSchema.methods.toggleIsPublicCategory = function(categoryID) {
 };
 
 userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag) {
+    let newSource;
     for (let i=0; i<this.categories.length; i++) {
-        if (this.categories[i].category_id === categoryID) {
+        if (this.categories[i]._id === categoryID) {
             if (urlFlag) {
-                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg});
-                break;
+                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg};
+                this.categories[i].sources.push(newSource);
+                return newSource;
             } else {
-                this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_img: sourceImg});
-                break;
+                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_img: sourceImg};
+                this.categories[i].sources.push(newSource);
+                return newSource;
             }
         }
     }
 };
 
 userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag) {
-    let userHasSource = false;
+    let newSource;
     for (let i=0; i<this.categories.length; i++) {
-        if (this.categories[i].category_id === categoryID) {
+        console.log(this.categories[i]._id);
+        console.log(categoryID);
+        if (this.categories[i]._id.toString() === categoryID) {
             for (let j=0; j<this.categories[i].sources.length; j++) {
                 if (this.categories[i].sources[j].source_id === sourceID) {
-                    userHasSource = true;
-                    break;
+                    console.log("About to return null");
+                    return null;
                 }
             }
-            if (!userHasSource) {
-                if (urlFlag) {
-                    this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg});
-                    break;
-                } else {
-                    this.categories[i].sources.push({source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_img: sourceImg});
-                    break;
-                }
+            if (urlFlag) {
+                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg};
+                this.categories[i].sources.push(newSource);
+                return newSource;
+            } else {
+                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_img: sourceImg};
+                this.categories[i].sources.push(newSource);
+                return newSource;
             }
-            break;
         }
     }
-    console.log(userHasSource);
-    return userHasSource;
 };
 
 // the schema is useless so far

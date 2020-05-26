@@ -202,12 +202,13 @@ class UserService {
                         }
                         newSource.save(function(err, savedSource) {
                             // add to user's sources in specified category
+                            let newSource;
                             if (urlYoutubeImg === null) {
                                 fs.unlinkSync(img_path);
                                 fs.unlinkSync(output_img_path);
-                                user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.img, savedSource.urlImgFlag);
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.img, savedSource.urlImgFlag);
                             } else {
-                                user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, urlYoutubeImg, savedSource.urlImgFlag);
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, urlYoutubeImg, savedSource.urlImgFlag);
                             }
                             user.save(function(err){
                                 if (err) {
@@ -221,24 +222,24 @@ class UserService {
                                                     callback(null, "error changing status of public category");
                                                 } else {
                                                     console.log("about to hit callback");
-                                                    callback(null, user.categories);
+                                                    callback(null, newSource);
                                                 }
                                             })
                                         } else {
-                                            callback(null, user.categories);
+                                            callback(null, newSource);
                                         }
                                     });
                                 }
                             })
                         });
                     } else {
-                        let userHasSource;
+                        let userSource;
                         if (resource.urlImgFlag) {
-                            userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag);
+                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag);
                         } else {
-                            userHasSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img, resource.urlImgFlag);
+                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img, resource.urlImgFlag);
                         }
-                        if (!userHasSource) {
+                        if (userSource) {
                             user.save(function (err) {
                                 if (err) {
                                     callback(null, "error");
@@ -256,11 +257,11 @@ class UserService {
                                                             callback(null, "error changing status of public category");
                                                         } else {
                                                             console.log("about to hit callback");
-                                                            callback(null, user.categories);
+                                                            callback(null, userSource);
                                                         }
                                                     })
                                                 } else {
-                                                    callback(null, user.categories);
+                                                    callback(null, userSource);
                                                 }
                                             });
                                         }
