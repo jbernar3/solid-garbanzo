@@ -24,6 +24,7 @@
     "mongodb": "latest",
     "mongoose": "^5.9.11",
     "puppeteer": "^3.0.4",
+    "react-scrollbars-custom": "^4.0.25",
     "sharp": "^0.25.3"
   },
   "devDependencies": {
