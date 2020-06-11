@@ -152,6 +152,131 @@ class UserService {
         });
     }
 
+    // static async NewSource(userID, categoryID, url, title, notes, browser, callback) {
+    //     User.findById(userID, function(err, user) {
+    //         if (err) {
+    //             callback(null, "error finding user");
+    //         } else {
+    //             Resource.findOne({ url: url }, async function(err, resource) {
+    //                 if (err) {
+    //                     callback(null, "error finding source");
+    //                 } else if (resource === null) {
+    //                     const r = Math.random().toString(36).substring(7);
+    //                     const img_path = 'source_screenshots/' + r + '.png';
+    //                     const output_img_path = 'source_screenshots/output_' + r + '.png';
+    //                     const page = await browser.newPage();
+    //                     await page.goto(url);
+    //                     const suggested_title = await page.title();
+    //                     let urlYoutubeImg = null;
+    //                     if (url.includes("youtube.com")) {
+    //                         let video_id = url.split('v=')[1];
+    //                         let ampersandPosition = video_id.indexOf('&');
+    //                         if(ampersandPosition !== -1) {
+    //                             video_id = video_id.substring(0, ampersandPosition);
+    //                         }
+    //                         urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg"
+    //                     } else {
+    //                         await page.screenshot({
+    //                             path: img_path,
+    //                             fullPage: false
+    //                         });
+    //                         await sharp(img_path).resize({height: 240, width: 400}).toFile(output_img_path);
+    //                         await page.close();
+    //                     }
+    //                     // add source document
+    //                     const newSource = new Resource();
+    //                     if (title === null || title === "") {
+    //                         newSource.title = url;
+    //                     } else {
+    //                         newSource.title = suggested_title;
+    //                     }
+    //                     newSource.url = url;
+    //                     newSource.countUse = 1;
+    //                     newSource.featuredCategories = [categoryID];
+    //                     newSource.urlImgFlag = (urlYoutubeImg !== null);
+    //                     if (urlYoutubeImg) {
+    //                         newSource.urlImg = urlYoutubeImg;
+    //                     } else {
+    //                         newSource.img.data = fs.readFileSync(output_img_path);
+    //                         newSource.img.contentType = 'image/png';
+    //                     }
+    //                     newSource.save(function(err, savedSource) {
+    //                         // add to user's sources in specified category
+    //                         let newSource;
+    //                         if (urlYoutubeImg === null) {
+    //                             fs.unlinkSync(img_path);
+    //                             fs.unlinkSync(output_img_path);
+    //                             newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.img, savedSource.urlImgFlag);
+    //                         } else {
+    //                             newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, urlYoutubeImg, savedSource.urlImgFlag);
+    //                         }
+    //                         user.save(function(err){
+    //                             if (err) {
+    //                                 callback(null, err);
+    //                             } else {
+    //                                 PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
+    //                                     if (pubCategory !== null) {
+    //                                         pubCategory.last_updated = new Date();
+    //                                         pubCategory.save(function(err) {
+    //                                             if (err) {
+    //                                                 callback(null, "error changing status of public category");
+    //                                             } else {
+    //                                                 console.log("about to hit callback");
+    //                                                 callback(null, newSource);
+    //                                             }
+    //                                         })
+    //                                     } else {
+    //                                         callback(null, newSource);
+    //                                     }
+    //                                 });
+    //                             }
+    //                         })
+    //                     });
+    //                 } else {
+    //                     let userSource;
+    //                     if (resource.urlImgFlag) {
+    //                         userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag);
+    //                     } else {
+    //                         userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img, resource.urlImgFlag);
+    //                     }
+    //                     if (userSource) {
+    //                         user.save(function (err) {
+    //                             if (err) {
+    //                                 callback(null, "error");
+    //                             } else {
+    //                                 resource.updateFeaturedCategories(categoryID);
+    //                                 resource.save(function(err) {
+    //                                     if (err) {
+    //                                         callback(null, err);
+    //                                     } else {
+    //                                         PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
+    //                                             if (pubCategory !== null) {
+    //                                                 pubCategory.last_updated = new Date();
+    //                                                 pubCategory.save(function(err) {
+    //                                                     if (err) {
+    //                                                         callback(null, "error changing status of public category");
+    //                                                     } else {
+    //                                                         console.log("about to hit callback");
+    //                                                         callback(null, userSource);
+    //                                                     }
+    //                                                 })
+    //                                             } else {
+    //                                                 callback(null, userSource);
+    //                                             }
+    //                                         });
+    //                                     }
+    //                                 });
+    //                             }
+    //                         })
+    //                     } else {
+    //                         callback(null, "source is already in this category");
+    //                     }
+    //                 }
+    //             });
+    //         }
+    //     });
+    // }
+
     static async NewSource(userID, categoryID, url, title, notes, browser, callback) {
         User.findById(userID, function(err, user) {
             if (err) {
@@ -161,140 +286,9 @@ class UserService {
                     if (err) {
                         callback(null, "error finding source");
                     } else if (resource === null) {
-                        const r = Math.random().toString(36).substring(7);
-                        const img_path = 'source_screenshots/' + r + '.png';
-                        const output_img_path = 'source_screenshots/output_' + r + '.png';
                         const page = await browser.newPage();
                         await page.goto(url);
                         const suggested_title = await page.title();
-                        let urlYoutubeImg = null;
-                        if (url.includes("youtube.com")) {
-                            let video_id = url.split('v=')[1];
-                            let ampersandPosition = video_id.indexOf('&');
-                            if(ampersandPosition !== -1) {
-                                video_id = video_id.substring(0, ampersandPosition);
-                            }
-                            urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg"
-                        } else {
-                            await page.screenshot({
-                                path: img_path,
-                                fullPage: false
-                            });
-                            await sharp(img_path).resize({height: 240, width: 400}).toFile(output_img_path);
-                            await page.close();
-                        }
-                        // add source document
-                        const newSource = new Resource();
-                        if (title === null || title === "") {
-                            newSource.title = url;
-                        } else {
-                            newSource.title = suggested_title;
-                        }
-                        newSource.url = url;
-                        newSource.countUse = 1;
-                        newSource.featuredCategories = [categoryID];
-                        newSource.urlImgFlag = (urlYoutubeImg !== null);
-                        if (urlYoutubeImg) {
-                            newSource.urlImg = urlYoutubeImg;
-                        } else {
-                            newSource.img.data = fs.readFileSync(output_img_path);
-                            newSource.img.contentType = 'image/png';
-                        }
-                        newSource.save(function(err, savedSource) {
-                            // add to user's sources in specified category
-                            let newSource;
-                            if (urlYoutubeImg === null) {
-                                fs.unlinkSync(img_path);
-                                fs.unlinkSync(output_img_path);
-                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.img, savedSource.urlImgFlag);
-                            } else {
-                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, urlYoutubeImg, savedSource.urlImgFlag);
-                            }
-                            user.save(function(err){
-                                if (err) {
-                                    callback(null, err);
-                                } else {
-                                    PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
-                                        if (pubCategory !== null) {
-                                            pubCategory.last_updated = new Date();
-                                            pubCategory.save(function(err) {
-                                                if (err) {
-                                                    callback(null, "error changing status of public category");
-                                                } else {
-                                                    console.log("about to hit callback");
-                                                    callback(null, newSource);
-                                                }
-                                            })
-                                        } else {
-                                            callback(null, newSource);
-                                        }
-                                    });
-                                }
-                            })
-                        });
-                    } else {
-                        let userSource;
-                        if (resource.urlImgFlag) {
-                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag);
-                        } else {
-                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img, resource.urlImgFlag);
-                        }
-                        if (userSource) {
-                            user.save(function (err) {
-                                if (err) {
-                                    callback(null, "error");
-                                } else {
-                                    resource.updateFeaturedCategories(categoryID);
-                                    resource.save(function(err) {
-                                        if (err) {
-                                            callback(null, err);
-                                        } else {
-                                            PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
-                                                if (pubCategory !== null) {
-                                                    pubCategory.last_updated = new Date();
-                                                    pubCategory.save(function(err) {
-                                                        if (err) {
-                                                            callback(null, "error changing status of public category");
-                                                        } else {
-                                                            console.log("about to hit callback");
-                                                            callback(null, userSource);
-                                                        }
-                                                    })
-                                                } else {
-                                                    callback(null, userSource);
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            })
-                        } else {
-                            callback(null, "source is already in this category");
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    static async NewSource2(userID, categoryID, url, title, notes, browser, callback) {
-        User.findById(userID, function(err, user) {
-            if (err) {
-                callback(null, "error finding user");
-            } else {
-                Resource.findOne({ url: url }, async function(err, resource) {
-                    if (err) {
-                        callback(null, "error finding source");
-                    } else if (resource === null && url.includes("youtube.com")) {
-                        const page = await browser.newPage();
-                        await page.goto(url);
-                        const suggested_title = await page.title();
-                        let video_id = url.split('v=')[1];
-                        let ampersandPosition = video_id.indexOf('&');
-                        if(ampersandPosition !== -1) {
-                            video_id = video_id.substring(0, ampersandPosition);
-                        }
-                        const urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg";
                         const newSource = new Resource();
                         if (title === undefined || title === null || title === "") {
                             newSource.title = suggested_title;
@@ -304,8 +298,18 @@ class UserService {
                         newSource.url = url;
                         newSource.countUse = 1;
                         newSource.featuredCategories = [categoryID];
-                        newSource.urlImgFlag = true;
-                        newSource.urlImg = urlYoutubeImg;
+                        if (url.includes("youtube.com")) {
+                            let video_id = url.split('v=')[1];
+                            let ampersandPosition = video_id.indexOf('&');
+                            if(ampersandPosition !== -1) {
+                                video_id = video_id.substring(0, ampersandPosition);
+                            }
+                            const urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg";
+                            newSource.urlImgFlag = true;
+                            newSource.urlImg = urlYoutubeImg;
+                        } else {
+                            newSource.urlImgFlag = false;
+                        }
                         newSource.save(function(err, savedSource) {
                             const newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, urlYoutubeImg, savedSource.urlImgFlag);
                             user.save(function(err){
@@ -330,51 +334,6 @@ class UserService {
                                 }
                             })
                         })
-                    } else if (resource === null) {
-                        const page = await browser.newPage();
-                        await page.goto(url);
-                        const suggested_title = await page.title();
-                        await page.close();
-                        // add source document
-                        const newSource = new Resource();
-                        if (title === undefined || title === null || title === "") {
-                            newSource.title = suggested_title;
-                        } else {
-                            newSource.title = title;
-                        }
-                        newSource.url = url;
-                        newSource.countUse = 1;
-                        newSource.featuredCategories = [categoryID];
-                        newSource.urlImgFlag = false;
-                        newSource.save(function(err, savedSource) {
-                            // add to user's sources in specified category
-                            if (err) {
-                                callback(null, err)
-                            } else {
-                                const newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.img, savedSource.urlImgFlag);
-                                user.save(function(err){
-                                    if (err) {
-                                        callback(null, err);
-                                    } else {
-                                        PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
-                                            if (pubCategory !== null) {
-                                                pubCategory.last_updated = new Date();
-                                                pubCategory.save(function(err) {
-                                                    if (err) {
-                                                        callback(null, "error changing status of public category");
-                                                    } else {
-                                                        console.log("about to hit callback");
-                                                        callback(null, newSource);
-                                                    }
-                                                })
-                                            } else {
-                                                callback(null, newSource);
-                                            }
-                                        });
-                                    }
-                                })
-                            }
-                        });
                     } else {
                         let userSource;
                         if (resource.urlImgFlag) {

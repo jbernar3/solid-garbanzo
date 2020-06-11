@@ -203,6 +203,19 @@ app.post('/get_suggested_title', (request, response) => {
     }).then((result) => response.send(result));
 });
 
+app.post('/get_source_img', (request, response) => {
+    new Promise(function(resolve, reject) {
+        SourceService.GetThumbNail(request.body.userID, request.body.categoryID, request.body.sourceID, request.body.url, global_browser,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((result) => response.send(result));
+});
+
 
 
 
