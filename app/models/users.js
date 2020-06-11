@@ -84,7 +84,6 @@ userSchema.methods.toggleIsPublicCategory = function(categoryID) {
 userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag) {
     let newSource;
     for (let i=0; i<this.categories.length; i++) {
-        console.log(this.categories[i]._id);
         if (this.categories[i]._id === categoryID) {
             if (urlFlag) {
                 newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg};

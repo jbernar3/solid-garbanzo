@@ -7,6 +7,7 @@ const Resource = require('./models/sources');
 const port = process.env.PORT || 3000;
 const UserService = require('./services/user-service');
 const PublicCategoriesService = require('./services/public-categories-service');
+const SourceService = require('./services/source-service');
 const Scraper = require('./services/scraper');
 const puppeteer = require('puppeteer');
 
@@ -179,6 +180,19 @@ app.post('/get_global_categories', (request, response) => {
 app.post('/get_scraped_source', (request, response) => {
     new Promise(function(resolve, reject) {
         Scraper.scrapeTitle(browser, request.body.url,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((result) => response.send(result));
+});
+
+app.post('/get_suggested_title', (request, response) => {
+    new Promise(function(resolve, reject) {
+        SourceService.GetTitle(request.body.url, global_browser,
             function(err, result) {
                 if (err) {
                     reject(err);
