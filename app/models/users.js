@@ -123,6 +123,22 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
     }
 };
 
+userSchema.methods.addSourceImg = function(categoryID, sourceID, imgData, contentType) {
+    for (let i=0; i<this.categories.length; i++) {
+        if (this.categories[i]._id.toString() === categoryID) {
+            const category = this.categories[i];
+            for (let j=0; j<category.sources.length; j++) {
+                if (category.sources[j]._id.toString() === sourceID) {
+                    const source = category.sources[j];
+                    source.source_img.data = imgData;
+                    source.source_img.contentType = contentType;
+                    return source.source_id;
+                }
+            }
+        }
+    }
+};
+
 // the schema is useless so far
 // we need to create a model using it
 const User = mongoose.model('User', userSchema);
