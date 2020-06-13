@@ -2,8 +2,8 @@ const User = require('../models/users');
 const Category = require('../models/categories');
 const Resource = require('../models/sources');
 const PublicCategories = require('../models/public_categories');
-const fs = require('fs');
-const sharp = require('sharp');
+
+const sysErrorMsg = "ERROR:system error, please try again.";
 
 class UserService {
     static async Signup(email, firstName, lastName, wantsMsg, password, callback) {
@@ -108,26 +108,26 @@ class UserService {
     static async NewCategory(userID, categoryName, parentID, callback) {
         User.findById(userID, function(err, user) {
             if (err) {
-                callback(null, "error");
+                callback(null, sysErrorMsg);
             } else if (user === null) {
-                callback(null, "user not found");
+                callback(null, sysErrorMsg);
             } else {
                 Category.findOne({ name: categoryName}, function(err, category) {
                     if (err) {
-                        callback(null, "error");
+                        callback(null, sysErrorMsg);
                     } else if (category === null) {
                         const newCategory = new Category();
                         newCategory.name = categoryName;
                         newCategory.save(function(err, savedCategory) {
                             if (err) {
-                                callback(null, "error");
+                                callback(null, sysErrorMsg);
                             } else {
-                                user.addNewCategory(savedCategory._id, savedCategory.name, parentID);
+                                const newCategory = user.addNewCategory(savedCategory._id, savedCategory.name, parentID);
                                 user.save(function(err) {
                                     if (err) {
-                                        callback(null, "error adding category to user");
+                                        callback(null, sysErrorMsg);
                                     } else {
-                                        callback(null, user.categories);
+                                        callback(null, newCategory);
                                     }
                                 })
                             }
@@ -135,14 +135,14 @@ class UserService {
                     } else {
                         // check if user already has this category
                         if (user.hasCategory(category.name)) {
-                            callback(null, "already exists");
+                            callback(null, "ERROR:class already exists");
                         } else {
-                            user.addNewCategory(category._id, category.name, parentID);
+                            const newCategory = user.addNewCategory(category._id, category.name, parentID);
                             user.save(function(err) {
                                 if (err) {
-                                    callback(null, "error adding category to user");
+                                    callback(null, sysErrorMsg);
                                 } else {
-                                    callback(null, user.categories);
+                                    callback(null, newCategory);
                                 }
                             })
                         }
@@ -280,11 +280,11 @@ class UserService {
     static async NewSource(userID, categoryID, url, title, notes, browser, callback) {
         User.findById(userID, function(err, user) {
             if (err) {
-                callback(null, "error finding user");
+                callback(null, sysErrorMsg);
             } else {
                 Resource.findOne({ url: url }, async function(err, resource) {
                     if (err) {
-                        callback(null, "error finding source");
+                        callback(null, sysErrorMsg);
                     } else if (resource === null) {
                         const page = await browser.newPage();
                         await page.goto(url);
@@ -311,19 +311,24 @@ class UserService {
                             newSource.urlImgFlag = false;
                         }
                         newSource.save(function(err, savedSource) {
-                            const newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, urlYoutubeImg, savedSource.urlImgFlag);
+                            let newSource;
+                            if (savedSource.urlImgFlag) {
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.urlImg, savedSource.urlImgFlag);
+                            } else {
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, null, savedSource.urlImgFlag);
+                            }
                             user.save(function(err){
                                 if (err) {
-                                    callback(null, err);
+                                    console.log(err);
+                                    callback(null, sysErrorMsg);
                                 } else {
                                     PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
                                         if (pubCategory !== null) {
                                             pubCategory.last_updated = new Date();
                                             pubCategory.save(function(err) {
                                                 if (err) {
-                                                    callback(null, "error changing status of public category");
+                                                    callback(null, sysErrorMsg);
                                                 } else {
-                                                    console.log("about to hit callback");
                                                     callback(null, newSource);
                                                 }
                                             })
@@ -344,21 +349,21 @@ class UserService {
                         if (userSource) {
                             user.save(function (err) {
                                 if (err) {
-                                    callback(null, "error");
+                                    callback(null, sysErrorMsg);
                                 } else {
                                     resource.updateFeaturedCategories(categoryID);
                                     resource.save(function(err) {
                                         if (err) {
-                                            callback(null, err);
+                                            console.log(err);
+                                            callback(null, sysErrorMsg);
                                         } else {
                                             PublicCategories.findOne({sharer_id: userID, category_id: categoryID}, function(err, pubCategory) {
                                                 if (pubCategory !== null) {
                                                     pubCategory.last_updated = new Date();
                                                     pubCategory.save(function(err) {
                                                         if (err) {
-                                                            callback(null, "error changing status of public category");
+                                                            callback(null, sysErrorMsg);
                                                         } else {
-                                                            console.log("about to hit callback");
                                                             callback(null, userSource);
                                                         }
                                                     })
@@ -371,7 +376,7 @@ class UserService {
                                 }
                             })
                         } else {
-                            callback(null, "source is already in this category");
+                            callback(null, "ERROR:source is already in this class");
                         }
                     }
                 });

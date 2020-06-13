@@ -49,8 +49,10 @@ userSchema.methods.validPassword = function(password) {
 };
 
 userSchema.methods.addNewCategory = function(catID, catName, parentID) {
-    this.categories.push({category_id: catID,
-            category_name: catName, sources: [], parent_id: parentID, isPublic: false});
+    const newCategory = {category_id: catID,
+        category_name: catName, sources: [], parent_id: parentID, isPublic: false};
+    this.categories.push(newCategory);
+    return newCategory;
 };
 
 userSchema.methods.hasCategory = function(categoryName) {
@@ -84,13 +86,13 @@ userSchema.methods.toggleIsPublicCategory = function(categoryID) {
 userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag) {
     let newSource;
     for (let i=0; i<this.categories.length; i++) {
-        if (this.categories[i]._id === categoryID) {
+        if (this.categories[i]._id.toString() === categoryID) {
             if (urlFlag) {
                 newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg};
                 this.categories[i].sources.push(newSource);
                 return newSource;
             } else {
-                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_img: sourceImg};
+                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag};
                 this.categories[i].sources.push(newSource);
                 return newSource;
             }
@@ -115,7 +117,7 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
                 this.categories[i].sources.push(newSource);
                 return newSource;
             } else {
-                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_img: sourceImg};
+                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag};
                 this.categories[i].sources.push(newSource);
                 return newSource;
             }

@@ -110,20 +110,6 @@ app.post('/new_source', (request,response) => {
                     resolve(result);
                 }
             });
-    }).then((result) => response.write(JSON.stringify(result))).then(() => console.log("Hello World!")).then(() => response.end());
-});
-
-app.post('/new_source2', (request,response) => {
-    //response.setHeader('Content-Type', 'application/json');
-    new Promise(function(resolve, reject) {
-        UserService.NewSource2(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle, request.body.sourceNotes, global_browser,
-            function(err, result) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
     }).then((result) => response.send(result));
 });
 
