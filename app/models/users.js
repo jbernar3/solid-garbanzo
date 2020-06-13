@@ -90,11 +90,11 @@ userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, source
             if (urlFlag) {
                 newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg};
                 this.categories[i].sources.push(newSource);
-                return newSource;
+                return this.categories[i].sources[this.categories[i].sources.length - 1];
             } else {
                 newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag};
                 this.categories[i].sources.push(newSource);
-                return newSource;
+                return this.categories[i].sources[this.categories[i].sources.length - 1];
             }
         }
     }
@@ -115,11 +115,11 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
             if (urlFlag) {
                 newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg};
                 this.categories[i].sources.push(newSource);
-                return newSource;
+                return this.categories[i].sources[this.categories[i].sources.length - 1];
             } else {
                 newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag};
                 this.categories[i].sources.push(newSource);
-                return newSource;
+                return this.categories[i].sources[this.categories[i].sources.length - 1];
             }
         }
     }
@@ -137,8 +137,12 @@ userSchema.methods.addSourceImg = function(categoryID, sourceID, imgData, conten
                     return source.source_id;
                 }
             }
+            break;
         }
     }
+    console.log("SOURCE IMAGE NOT BEING ADDED CORRECTLY");
+    console.log(categoryID);
+    console.log(sourceID);
 };
 
 // the schema is useless so far
