@@ -52,7 +52,7 @@ userSchema.methods.addNewCategory = function(catID, catName, parentID) {
     const newCategory = {category_id: catID,
         category_name: catName, sources: [], parent_id: parentID, isPublic: false};
     this.categories.push(newCategory);
-    return newCategory;
+    return this.categories[this.categories.length - 1];
 };
 
 userSchema.methods.hasCategory = function(categoryName) {
