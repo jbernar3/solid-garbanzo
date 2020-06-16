@@ -7,10 +7,15 @@ const sharp = require('sharp');
 
 class SourceService {
     static async GetTitle(url, browser, callback) {
-        const page = await browser.newPage();
-        await page.goto(url);
-        const suggested_title = await page.title();
-        callback(null, suggested_title);
+        try {
+            const page = await browser.newPage();
+            await page.goto(url);
+            const suggested_title = await page.title();
+            await page.close();
+            callback(null, suggested_title);
+        } catch (e) {
+            callback(null, "");
+        }
     }
 
     static async GetThumbNail(userID, categoryID, sourceID, url, browser, callback) {
