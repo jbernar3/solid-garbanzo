@@ -49,6 +49,36 @@ class UserService {
         });
     }
 
+    static ChangeSource(src, callback) {
+        Resource.findById(src.source_id, function (err, srcParent) {
+            if (err || srcParent === null) {
+                callback(null, src);
+            } else {
+                let newSrc = src;
+                newSrc.source_urlImgFlag = srcParent.urlImgFlag;
+                newSrc.source_img = srcParent.img;
+                newSrc.source_urlImg = srcParent.urlImg;
+                newSrc.url = 'https://docs.mongodb.com/manual/tutorial/analyze-query-plan/';
+                callback(null, newSrc);
+            }
+        });
+    }
+
+    static async AddImagesCategory(category) {
+        let newCategory = category;
+        Promise.all(category.sources.map(function (src, index) {
+            new Promise(function (resolve, reject) {
+                UserService.ChangeSource(src,
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            }).then((result) => {newCategory.sources[index] = result});
+        })).then((result) => {console.log(result)});
+    }
+
     static async GetCategories(userID, callback) {
         User.findById(userID, function (err, user) {
             if (err) {
@@ -56,26 +86,9 @@ class UserService {
             } else if (user === null) {
                 callback(null, "user not found");
             } else {
-                let userCategories = user.categories.map(function(cat, index) {
-                    let category = cat;
-                    cat.sources.map(function(src, index) {
-                        Resource.findById(src.source_id, function (err, srcParent) {
-                            if (err || srcParent === null) {
-                                category.sources[index] = src;
-                            } else {
-                                let source = src;
-                                source.source_urlImgFlag = srcParent.urlImgFlag;
-                                source.source_img = srcParent.img;
-                                source.source_urlImg = srcParent.urlImg;
-                                console.log("source");
-                                console.log(source);
-                                category.sources[index] = source;
-                            }
-                        });
-                    });
-                    return category;
-                });
-                callback(null, userCategories);
+                callback(null, user.categories.map((category) => {
+                    return UserService.AddImagesCategory(category);
+                }));
             }
         })
     }
