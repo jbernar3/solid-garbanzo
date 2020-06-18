@@ -19,6 +19,8 @@ class UserService {
                 newUser.wants_msg = wantsMsg;
                 newUser.setPassword(password);
                 newUser.categories = [];
+                newUser.bio = "";
+                newUser.firstTime = false;
                 newUser.save(function(err) {
                     if (err) {
                         callback(null, "error");
@@ -54,7 +56,26 @@ class UserService {
             } else if (user === null) {
                 callback(null, "user not found");
             } else {
-                callback(null, user.categories);
+                let userCategories = user.categories.map(function(cat, index) {
+                    let category = cat;
+                    cat.sources.map(function(src, index) {
+                        Resource.findById(src.source_id, function (err, srcParent) {
+                            if (err || srcParent === null) {
+                                category.sources[index] = src;
+                            } else {
+                                let source = src;
+                                source.source_urlImgFlag = srcParent.urlImgFlag;
+                                source.source_img = srcParent.img;
+                                source.source_urlImg = srcParent.urlImg;
+                                console.log("source");
+                                console.log(source);
+                                category.sources[index] = source;
+                            }
+                        });
+                    });
+                    return category;
+                });
+                callback(null, userCategories);
             }
         })
     }

@@ -30,6 +30,8 @@ const userSchema = new Schema({
     created_at: Date,
     wants_msg: {type: Boolean, required: true},
     categories: [userCategorySchema],
+    bio: {type: String, required: true},
+    firstTime: {type: Boolean, required: true}
 });
 
 userSchema.methods.setPassword = function(password) {
