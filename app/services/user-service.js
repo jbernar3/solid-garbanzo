@@ -54,29 +54,60 @@ class UserService {
             if (err || srcParent === null) {
                 callback(null, src);
             } else {
-                let newSrc = src;
-                newSrc.source_urlImgFlag = srcParent.urlImgFlag;
-                newSrc.source_img = srcParent.img;
-                newSrc.source_urlImg = srcParent.urlImg;
-                newSrc.url = 'https://docs.mongodb.com/manual/tutorial/analyze-query-plan/';
-                callback(null, newSrc);
+                callback(null, {
+                    _id: src._id,
+                    source_id: src.source_id,
+                    source_name: src.source_name,
+                    source_notes: src.source_notes,
+                    source_urlImgFlag: srcParent.urlImgFlag,
+                    source_img: srcParent.img,
+                    source_urlImg: srcParent.urlImg,
+                    url: 'https://docs.mongodb.com/manual/tutorial/analyze-query-plan/'
+                });
             }
         });
     }
 
     static async AddImagesCategory(category) {
-        let newCategory = category;
-        Promise.all(category.sources.map(function (src, index) {
-            new Promise(function (resolve, reject) {
+        return Promise.all(category.sources.map(function (src, index) {
+            return new Promise(function (resolve, reject) {
                 UserService.ChangeSource(src,
+                    function(err, result) {
                         if (err) {
                             reject(err);
                         } else {
                             resolve(result);
                         }
-                    });
-            }).then((result) => {newCategory.sources[index] = result});
-        })).then((result) => {console.log(result)});
+                    })
+            });
+            // Promise.resolve(UserService.ChangeSource(src));
+            //.then((result) => {return result;})
+        }));
+    }
+
+    static async ChangeCategories(categories) {
+        return Promise.all(categories.map((category, index) => {
+            // new Promise(function (resolve, reject) {
+            //     UserService.AddImagesCategory(category,
+            //         function(err, result) {
+            //             if (err) {
+            //                 reject(err);
+            //             } else {
+            //                 resolve(result);
+            //             }
+            //         })
+            // }).then((result) => newUserCategories[index] = result);
+            UserService.AddImagesCategory(category).then((result) => Promise.resolve(
+                {
+                    _id: category._id,
+                    category_id: category.category_id,
+                    category_name: category.category_name,
+                    sources: result,
+                    parent_id: category.parent_id,
+                    isPublic: category.isPublic
+                }
+            ));
+        }));
     }
 
     static async GetCategories(userID, callback) {
@@ -86,9 +117,19 @@ class UserService {
             } else if (user === null) {
                 callback(null, "user not found");
             } else {
-                callback(null, user.categories.map((category) => {
-                    return UserService.AddImagesCategory(category);
-                }));
+                UserService.ChangeCategories(user.categories).then((result) => callback(null, result));
+            }
+        })
+    }
+
+    static async GetCategoriesOld(userID, callback) {
+        User.findById(userID, function (err, user) {
+            if (err) {
+                callback(null, "system error");
+            } else if (user === null) {
+                callback(null, "user not found");
+            } else {
+                callback(null, user.categories);
             }
         })
     }
