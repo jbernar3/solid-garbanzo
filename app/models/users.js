@@ -85,16 +85,20 @@ userSchema.methods.toggleIsPublicCategory = function(categoryID) {
     return false;
 };
 
-userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url) {
+userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url, title) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i]._id.toString() === categoryID) {
             const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes};
             this.categories[i].sources.push(newSource);
             let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
+            let returnTitle = title;
+            if (title === undefined || title === "" || title === null) {
+                returnTitle = sourceTitle;
+            }
             return {
                 _id: returnSource._id,
                 source_id: returnSource.source_id,
-                source_name: returnSource.source_name,
+                source_name: returnTitle,
                 source_notes: returnSource.source_notes,
                 source_urlImgFlag: urlFlag,
                 source_urlImg: sourceImg,
@@ -104,7 +108,7 @@ userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, source
     }
 };
 
-userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url) {
+userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url, title) {
     for (let i=0; i<this.categories.length; i++) {
         console.log(this.categories[i]._id);
         console.log(categoryID);
@@ -118,10 +122,14 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
             const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes};
             this.categories[i].sources.push(newSource);
             let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
+            let returnTitle = title;
+            if (title === undefined || title === "" || title === null) {
+                returnTitle = sourceTitle;
+            }
             return {
                 _id: returnSource._id,
                 source_id: returnSource.source_id,
-                source_name: returnSource.source_name,
+                source_name: returnTitle,
                 source_notes: returnSource.source_notes,
                 source_urlImgFlag: urlFlag,
                 source_urlImg: sourceImg,

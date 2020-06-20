@@ -2,6 +2,7 @@ const User = require('../models/users');
 const Category = require('../models/categories');
 const Resource = require('../models/sources');
 const PublicCategories = require('../models/public_categories');
+const fetchVideoInfo = require('youtube-info');
 
 const sysErrorMsg = "ERROR:system error, please try again.";
 
@@ -392,7 +393,7 @@ class UserService {
     //     });
     // }
 
-    static async NewSource(userID, categoryID, url, title, notes, browser, callback) {
+    static async NewSource(userID, categoryID, url, title, suggestedTitle, notes, browser, callback) {
         User.findById(userID, function(err, user) {
             if (err) {
                 callback(null, sysErrorMsg);
@@ -401,18 +402,11 @@ class UserService {
                     if (err) {
                         callback(null, sysErrorMsg);
                     } else if (resource === null) {
-                        const page = await browser.newPage();
-                        await page.goto(url);
-                        const suggested_title = await page.title();
                         const newSource = new Resource();
-                        if (title === undefined || title === null || title === "") {
-                            newSource.title = suggested_title;
-                        } else {
-                            newSource.title = title;
-                        }
                         newSource.url = url;
                         newSource.countUse = 1;
                         newSource.featuredCategories = [categoryID];
+                        let suggested_title = suggestedTitle;
                         if (url.includes("youtube.com")) {
                             let video_id = url.split('v=')[1];
                             let ampersandPosition = video_id.indexOf('&');
@@ -422,15 +416,25 @@ class UserService {
                             const urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg";
                             newSource.urlImgFlag = true;
                             newSource.urlImg = urlYoutubeImg;
+                            if (suggestedTitle === "") {
+                                const videoInfo = await fetchVideoInfo(video_id);
+                                suggested_title = videoInfo.title;
+                            }
                         } else {
+                            if (suggestedTitle === "") {
+                                const page = await browser.newPage();
+                                await page.goto(url);
+                                suggested_title = await page.title();
+                            }
                             newSource.urlImgFlag = false;
                         }
+                        newSource.title = suggested_title;
                         newSource.save(function(err, savedSource) {
                             let newSource;
                             if (savedSource.urlImgFlag) {
-                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.urlImg, savedSource.urlImgFlag, savedSource.url);
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.urlImg, savedSource.urlImgFlag, savedSource.url, title);
                             } else {
-                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, null, savedSource.urlImgFlag, savedSource.url);
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, null, savedSource.urlImgFlag, savedSource.url, title);
                             }
                             user.save(function(err){
                                 if (err) {

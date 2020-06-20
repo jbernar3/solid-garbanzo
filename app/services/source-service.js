@@ -4,18 +4,36 @@ const Resource = require('../models/sources');
 const PublicCategories = require('../models/public_categories');
 const fs = require('fs');
 const sharp = require('sharp');
+const fetchVideoInfo = require('youtube-info');
+const sysErrorMsg = "ERROR:system error, please try again.";
 
 class SourceService {
     static async GetTitle(url, browser, callback) {
-        try {
-            const page = await browser.newPage();
-            await page.goto(url);
-            const suggested_title = await page.title();
-            await page.close();
-            callback(null, suggested_title);
-        } catch (e) {
-            callback(null, "");
-        }
+        Resource.findOne({url: url}, async function(err, resource) {
+            if (err) {
+                callback(null, sysErrorMsg);
+            } else if (resource === null) {
+                try {
+                    if (url.includes("youtube.com")) {
+                        let video_id = url.split('v=')[1];
+                        fetchVideoInfo(video_id, function (err, videoInfo) {
+                            if (err) throw new Error(err);
+                            callback(null, videoInfo.title);
+                        });
+                    } else {
+                        const page = await browser.newPage();
+                        await page.goto(url);
+                        const suggested_title = await page.title();
+                        await page.close();
+                        callback(null, suggested_title);
+                    }
+                } catch (e) {
+                    callback(null, sysErrorMsg);
+                }
+            } else {
+                callback(null, resource.title);
+            }
+        });
     }
 
     static async GetThumbNail(sourceID, browser, callback) {

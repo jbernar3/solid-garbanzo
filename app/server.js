@@ -102,7 +102,7 @@ app.post('/new_category', (request,response) => {
 app.post('/new_source', (request,response) => {
     //response.setHeader('Content-Type', 'application/json');
     new Promise(function(resolve, reject) {
-        UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle, request.body.sourceNotes, global_browser,
+        UserService.NewSource(request.body.userID, request.body.categoryID, request.body.url, request.body.sourceTitle, request.body.sourceNotes, request.body.suggestedTitle, global_browser,
             function(err, result) {
                 if (err) {
                     reject(err);
