@@ -7,9 +7,9 @@ const userSourceSchema = new Schema({
     source_id: {type: String, required: true},
     source_name: {type: String, required: false},
     source_notes: {type: String, required: false},
-    source_urlImgFlag: {type: Boolean, required: true},
-    source_img: {data: Buffer, contentType: String, required: false},
-    source_urlImg: {type: String, required: false}
+    // source_urlImgFlag: {type: Boolean, required: true},
+    // source_img: {data: Buffer, contentType: String, required: false},
+    // source_urlImg: {type: String, required: false}
 });
 
 const userCategorySchema = new Schema({
@@ -30,7 +30,7 @@ const userSchema = new Schema({
     created_at: Date,
     wants_msg: {type: Boolean, required: true},
     categories: [userCategorySchema],
-    bio: {type: String, required: true},
+    bio: {type: String, required: false},
     firstTime: {type: Boolean, required: true}
 });
 
@@ -85,43 +85,47 @@ userSchema.methods.toggleIsPublicCategory = function(categoryID) {
     return false;
 };
 
-userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag) {
-    let newSource;
+userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i]._id.toString() === categoryID) {
-            if (urlFlag) {
-                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg};
-                this.categories[i].sources.push(newSource);
-                return this.categories[i].sources[this.categories[i].sources.length - 1];
-            } else {
-                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag};
-                this.categories[i].sources.push(newSource);
-                return this.categories[i].sources[this.categories[i].sources.length - 1];
+            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes};
+            this.categories[i].sources.push(newSource);
+            let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
+            return {
+                _id: returnSource._id,
+                source_id: returnSource.source_id,
+                source_name: returnSource.source_name,
+                source_notes: returnSource.source_notes,
+                source_urlImgFlag: urlFlag,
+                source_urlImg: sourceImg,
+                url: url
             }
         }
     }
 };
 
-userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag) {
-    let newSource;
+userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url) {
     for (let i=0; i<this.categories.length; i++) {
         console.log(this.categories[i]._id);
         console.log(categoryID);
         if (this.categories[i]._id.toString() === categoryID) {
             for (let j=0; j<this.categories[i].sources.length; j++) {
-                if (this.categories[i].sources[j].source_id === sourceID) {
+                if (this.categories[i].sources[j]._id === sourceID) {
                     console.log("About to return null");
                     return null;
                 }
             }
-            if (urlFlag) {
-                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag, source_urlImg: sourceImg};
-                this.categories[i].sources.push(newSource);
-                return this.categories[i].sources[this.categories[i].sources.length - 1];
-            } else {
-                newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, source_urlImgFlag: urlFlag};
-                this.categories[i].sources.push(newSource);
-                return this.categories[i].sources[this.categories[i].sources.length - 1];
+            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes};
+            this.categories[i].sources.push(newSource);
+            let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
+            return {
+                _id: returnSource._id,
+                source_id: returnSource.source_id,
+                source_name: returnSource.source_name,
+                source_notes: returnSource.source_notes,
+                source_urlImgFlag: urlFlag,
+                source_urlImg: sourceImg,
+                url: url
             }
         }
     }

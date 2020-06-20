@@ -19,10 +19,10 @@ class UserService {
                 newUser.wants_msg = wantsMsg;
                 newUser.setPassword(password);
                 newUser.categories = [];
-                newUser.bio = "";
                 newUser.firstTime = false;
                 newUser.save(function(err) {
                     if (err) {
+                        console.log(err);
                         callback(null, "error");
                     }
                     console.log('User created!');
@@ -62,14 +62,14 @@ class UserService {
                     source_urlImgFlag: srcParent.urlImgFlag,
                     source_img: srcParent.img,
                     source_urlImg: srcParent.urlImg,
-                    url: 'https://docs.mongodb.com/manual/tutorial/analyze-query-plan/'
+                    url: srcParent.url
                 });
             }
         });
     }
 
-    static async AddImagesCategory(category) {
-        return Promise.all(category.sources.map(function (src, index) {
+    static async AddImagesCategory(category, callback) {
+        Promise.all(category.sources.map(function (src, index) {
             return new Promise(function (resolve, reject) {
                 UserService.ChangeSource(src,
                     function(err, result) {
@@ -82,7 +82,7 @@ class UserService {
             });
             // Promise.resolve(UserService.ChangeSource(src));
             //.then((result) => {return result;})
-        }));
+        })).then((result) => callback(null, result));
     }
 
     static async ChangeCategories(categories) {
@@ -97,17 +97,56 @@ class UserService {
             //             }
             //         })
             // }).then((result) => newUserCategories[index] = result);
-            UserService.AddImagesCategory(category).then((result) => Promise.resolve(
-                {
-                    _id: category._id,
-                    category_id: category.category_id,
-                    category_name: category.category_name,
-                    sources: result,
-                    parent_id: category.parent_id,
-                    isPublic: category.isPublic
-                }
-            ));
+            return new Promise(function (resolve, reject) {
+                UserService.AddImagesCategory(category,
+                    function(err, result) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve({
+                                _id: category._id,
+                                category_id: category.category_id,
+                                category_name: category.category_name,
+                                sources: result,
+                                parent_id: category.parent_id,
+                                isPublic: category.isPublic
+                            });
+                        }
+                    })
+            });
+            // UserService.AddImagesCategory(category).then((result) => Promise.resolve(
+            //     {
+            //         _id: category._id,
+            //         category_id: category.category_id,
+            //         category_name: category.category_name,
+            //         sources: result,
+            //         parent_id: category.parent_id,
+            //         isPublic: category.isPublic
+            //     }
+            // )).then((result) => {return result});
         }));
+        // return categories.map((category, index) => {
+        //     // new Promise(function (resolve, reject) {
+        //     //     UserService.AddImagesCategory(category,
+        //     //         function(err, result) {
+        //     //             if (err) {
+        //     //                 reject(err);
+        //     //             } else {
+        //     //                 resolve(result);
+        //     //             }
+        //     //         })
+        //     // }).then((result) => newUserCategories[index] = result);
+        //     UserService.AddImagesCategory(category).then((result) => Promise.resolve(
+        //         {
+        //             _id: category._id,
+        //             category_id: category.category_id,
+        //             category_name: category.category_name,
+        //             sources: result,
+        //             parent_id: category.parent_id,
+        //             isPublic: category.isPublic
+        //         }
+        //     )).then((result) => result);
+        // });
     }
 
     static async GetCategories(userID, callback) {
@@ -118,6 +157,7 @@ class UserService {
                 callback(null, "user not found");
             } else {
                 UserService.ChangeCategories(user.categories).then((result) => callback(null, result));
+                // UserService.ChangeCategories(user.categories).then((result) => console.log(result[0].sources));
             }
         })
     }
@@ -388,9 +428,9 @@ class UserService {
                         newSource.save(function(err, savedSource) {
                             let newSource;
                             if (savedSource.urlImgFlag) {
-                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.urlImg, savedSource.urlImgFlag);
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.urlImg, savedSource.urlImgFlag, savedSource.url);
                             } else {
-                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, null, savedSource.urlImgFlag);
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, null, savedSource.urlImgFlag, savedSource.url);
                             }
                             user.save(function(err){
                                 if (err) {
@@ -417,9 +457,9 @@ class UserService {
                     } else {
                         let userSource;
                         if (resource.urlImgFlag) {
-                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag);
+                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag, resource.url);
                         } else {
-                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img, resource.urlImgFlag);
+                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img, resource.urlImgFlag, resource.url);
                         }
                         if (userSource) {
                             user.save(function (err) {
