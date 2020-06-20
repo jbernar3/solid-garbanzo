@@ -202,6 +202,19 @@ app.post('/get_source_img', (request, response) => {
     }).then((result) => response.send(result));
 });
 
+app.post('/edit_profile', (request, response) => {
+    new Promise(function(resolve, reject) {
+        UserService.EditProfile(request.body.userID, request.body.firstName, request.body.lastName, request.body.bio,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+    }).then((result) => response.send(result));
+});
+
 
 
 

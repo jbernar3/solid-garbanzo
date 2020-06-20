@@ -21,6 +21,7 @@ class UserService {
                 newUser.setPassword(password);
                 newUser.categories = [];
                 newUser.firstTime = false;
+                newUser.username = "Pop Smoke";
                 newUser.save(function(err) {
                     if (err) {
                         console.log(err);
@@ -501,6 +502,27 @@ class UserService {
                 });
             }
         });
+    }
+
+    static async EditProfile(userID, firstName, lastName, bio, callback) {
+        User.findById(userID, function(err, user) {
+            if (err || user === null) {
+                console.log(err);
+                callback(null, sysErrorMsg);
+            } else {
+                user.first_name = firstName;
+                user.last_name = lastName;
+                user.bio = bio;
+                user.save(function(err) {
+                    if (err) {
+                        console.log(err);
+                        callback(null, sysErrorMsg);
+                    } else {
+                        callback(null, "success");
+                    }
+                })
+            }
+        })
     }
 }
 
