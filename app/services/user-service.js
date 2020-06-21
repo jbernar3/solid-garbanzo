@@ -542,6 +542,27 @@ class UserService {
             }
         })
     }
+
+    static async ChangePassword(userID, currPassword, newPassword, callback) {
+        User.findById(userID, function(err, user) {
+            if (err || user === null) {
+                callback(null, sysErrorMsg);
+            } else {
+                if (user.validPassword(currPassword)) {
+                    user.setPassword(newPassword);
+                    user.save(function(err) {
+                        if (err) {
+                            callback(null, sysErrorMsg);
+                        } else {
+                            callback(null, "success");
+                        }
+                    })
+                } else {
+                    callback(null, "ERROR: wrong password");
+                }
+            }
+        })
+    }
 }
 
 module.exports = UserService;

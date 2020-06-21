@@ -215,6 +215,19 @@ app.post('/edit_profile', (request, response) => {
     }).then((result) => response.send(result));
 });
 
+app.post('/change_password', (request, response) => {
+    new Promise(function(resolve, reject) {
+        UserService.ChangePassword(request.body.userID, request.body.currPassword, request.body.newPassword,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+    })
+});
+
 
 
 
