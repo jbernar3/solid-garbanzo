@@ -7,8 +7,25 @@ const fetchVideoInfo = require('youtube-info');
 const sysErrorMsg = "ERROR:system error, please try again.";
 
 class UserService {
+    static async RandomUsername(firstName, lastName) {
+        return new Promise(function (resolve, reject) {
+            const tempUsername = firstName.substring(0,1) + lastName.substring(0,7) + Math.floor(Math.random() * 100);
+            User.findOne({username: tempUsername}, function(err, user) {
+                if (user === null) {
+                    resolve(tempUsername);
+                } else {
+                    resolve(UserService.RandomUsername(firstName, lastName));
+                }
+            })
+        });
+    }
+
+    static GetUsername(firstName, lastName) {
+
+    }
+
     static async Signup(email, firstName, lastName, wantsMsg, password, callback) {
-        User.findOne({ email: email}, function(err, user) {
+        User.findOne({ email: email}, async function(err, user) {
             if (user !== null) {
                 callback(null, "user exists");
             } else {
@@ -21,12 +38,13 @@ class UserService {
                 newUser.setPassword(password);
                 newUser.categories = [];
                 newUser.firstTime = false;
-                newUser.username = "Pop Smoke";
+                newUser.username = await UserService.RandomUsername(firstName, lastName);
                 newUser.save(function(err) {
                     if (err) {
                         console.log(err);
                         callback(null, "error");
                     }
+                    console.log(newUser);
                     console.log('User created!');
                     callback(null, newUser);
                 });
