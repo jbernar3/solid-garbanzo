@@ -558,7 +558,7 @@ class UserService {
                         }
                     })
                 } else {
-                    callback(null, "ERROR: wrong password");
+                    callback(null, "ERROR:incorrect password");
                 }
             }
         })

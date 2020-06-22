@@ -225,7 +225,7 @@ app.post('/change_password', (request, response) => {
                     resolve(result);
                 }
             })
-    })
+    }).then((result) => response.send(result));
 });
 
 
