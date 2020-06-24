@@ -32,7 +32,8 @@ const userSchema = new Schema({
     wants_msg: {type: Boolean, required: true},
     categories: [userCategorySchema],
     bio: {type: String, required: false},
-    firstTime: {type: Boolean, required: true}
+    firstTime: {type: Boolean, required: true},
+    verification_code: {type: Number, required: false}
 });
 
 userSchema.methods.setPassword = function(password) {
@@ -158,6 +159,17 @@ userSchema.methods.addSourceImg = function(categoryID, sourceID, imgData, conten
     console.log("SOURCE IMAGE NOT BEING ADDED CORRECTLY");
     console.log(categoryID);
     console.log(sourceID);
+};
+
+userSchema.methods.createMailOptions = function() {
+    return {
+        from: "info@clasifyweb.com",
+        to: this.email,
+        subject: "Verify Your Clasify Account",
+        html: '<h1>Hello ' + this.first_name + '!</h1>' +
+            '<div>Your verification code is: ' + this.verification_code + '</div>',
+        text: 'Your verification code is: ' + this.verification_code
+    }
 };
 
 // the schema is useless so far

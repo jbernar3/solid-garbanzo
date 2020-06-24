@@ -3,8 +3,24 @@ const Category = require('../models/categories');
 const Resource = require('../models/sources');
 const PublicCategories = require('../models/public_categories');
 const fetchVideoInfo = require('youtube-info');
+const nodemailer = require('nodemailer');
+const nodeoutlook = require('nodejs-nodemailer-outlook');
 
 const sysErrorMsg = "ERROR:system error, please try again.";
+
+const transporter = nodemailer.createTransport({
+    // service: 'outlook.office365',
+    host: 'smtp.office365.com', // Office 365 server
+    port: 587,     // secure SMTP
+    secure: false,
+    auth: {
+        user: 'info@clasifyweb.com',
+        pass: 'Ju*g6V!rwp!GFqDH'
+    },
+    tls: {
+        ciphers: 'SSLv3'
+    }
+});
 
 class UserService {
     static async RandomUsername(firstName, lastName) {
@@ -20,14 +36,10 @@ class UserService {
         });
     }
 
-    static GetUsername(firstName, lastName) {
-
-    }
-
     static async Signup(email, firstName, lastName, wantsMsg, password, callback) {
         User.findOne({ email: email}, async function(err, user) {
             if (user !== null) {
-                callback(null, "user exists");
+                callback(null, "ERROR:Email address already registered. Please sign in.");
             } else {
                 const newUser = User();
                 newUser.first_name = firstName;
@@ -39,14 +51,44 @@ class UserService {
                 newUser.categories = [];
                 newUser.firstTime = false;
                 newUser.username = await UserService.RandomUsername(firstName, lastName);
-                newUser.save(function(err) {
+                newUser.verification_code = Math.random() * (999999 - 100000) + 100000;
+                newUser.save(function(err, savedUser) {
                     if (err) {
                         console.log(err);
-                        callback(null, "error");
+                        callback(null, sysErrorMsg);
+                    } else {
+                        transporter.sendMail(savedUser.createMailOptions(), function(err, info){
+                            if (err) {
+                                console.log(err);
+                                User.deleteOne({_id: savedUser._id}, function(err, user) {
+                                    if (err) {
+                                        callback(null, sysErrorMsg);
+                                    } else {
+                                        callback(null, "ERROR:sending email to " + email);
+                                    }
+                                });
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                                callback(null, "success");
+                            }
+                        });
+                        // const isError = nodeoutlook.sendEmail(savedUser.createVerificationEmail());
+                        // console.log("this is isError");
+                        // console.log(isError);
+                        // if (isError) {
+                        //     User.deleteOne({_id: savedUser._id}, function(err, user) {
+                        //         if (err) {
+                        //             callback(null, sysErrorMsg);
+                        //         } else {
+                        //             callback(null, "ERROR:sending email to " + email);
+                        //         }
+                        //     });
+                        // } else {
+                        //     console.log('Email sent!');
+                        //     callback(null, "success");
+                        // }
                     }
-                    console.log(newUser);
-                    console.log('User created!');
-                    callback(null, newUser);
+
                 });
             }
         });
@@ -60,7 +102,14 @@ class UserService {
                 callback(null, "dne");
             } else {
                 if (user.validPassword(password)) {
-                    callback(null, user);
+                    callback(null, {
+                        _id: user._id,
+                        email: user.email,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        bio: user.bio,
+                        username: user.username
+                    });
                     console.log("Signed In");
                 } else {
                     callback(null, "incorrect password");
@@ -170,6 +219,7 @@ class UserService {
     }
 
     static async GetCategories(userID, callback) {
+        console.log(userID);
         User.findById(userID, function (err, user) {
             if (err) {
                 callback(null, "system error");
