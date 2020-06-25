@@ -228,6 +228,32 @@ app.post('/change_password', (request, response) => {
     }).then((result) => response.send(result));
 });
 
+app.post('/change_email', (request, response) => {
+    new Promise(function(resolve, reject) {
+        UserService.ChangeEmail(request.body.userID, request.body.newEmail,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+    }).then((result) => response.send(result));
+});
+
+app.post('/verify_code', (request, response) => {
+   new Promise(function(resolve, reject) {
+       UserService.VerifyCode(request.body.userID, request.body.verifyCode,
+           function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+           })
+   }).then((result) => response.send(result));
+});
+
 
 
 

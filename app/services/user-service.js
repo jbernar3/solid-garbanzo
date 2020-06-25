@@ -613,6 +613,62 @@ class UserService {
             }
         })
     }
+
+    static async ChangeEmail(userID, newEmail, callback) {
+        User.findById(userID, function(err, user) {
+            if (err || user === null) {
+                callback(null, sysErrorMsg);
+            } else {
+                user.verification_code = Math.random() * (999999 - 100000) + 100000;
+                user.save(function(err) {
+                    if (err) {
+                        callback(null, sysErrorMsg);
+                    } else {
+                        transporter.sendMail(user.createMailOptionsChangeEmail(newEmail), function(err, info){
+                            if (err) {
+                                callback(null, "ERROR:error sending email to " + newEmail)
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                                user.pending_new_email = newEmail;
+                                user.save(function(err) {
+                                    if (err) {
+                                        callback(null, sysErrorMsg);
+                                    } else {
+                                        callback(null, "success");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        })
+    }
+
+    static async VerifyCode(userID, verifyCode, callback) {
+        User.findById(userID, function(err, user) {
+           if (err || user === null) {
+               callback(null, sysErrorMsg);
+           } else {
+               if (user.verification_code === verifyCode) {
+                   if (user.pending_new_email) {
+                       user.email = user.pending_new_email;
+                       user.pending_new_email = undefined;
+                   }
+                   user.verification_code = undefined;
+                   user.save(function(err) {
+                       if (err) {
+                           callback(null, sysErrorMsg);
+                       } else {
+                           callback(null, 'success');
+                       }
+                   })
+               } else {
+                   callback(null, "ERROR:verification code wrong");
+               }
+           }
+        });
+    }
 }
 
 module.exports = UserService;
