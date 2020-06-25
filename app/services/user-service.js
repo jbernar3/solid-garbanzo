@@ -51,13 +51,14 @@ class UserService {
                 newUser.categories = [];
                 newUser.firstTime = false;
                 newUser.username = await UserService.RandomUsername(firstName, lastName);
-                newUser.verification_code = Math.random() * (999999 - 100000) + 100000;
+                const verifyCode = Math.floor(Math.random() * (999999 - 100000) + 100000);
+                newUser.setVerificationCode(verifyCode.toString());
                 newUser.save(function(err, savedUser) {
                     if (err) {
                         console.log(err);
                         callback(null, sysErrorMsg);
                     } else {
-                        transporter.sendMail(savedUser.createMailOptions(), function(err, info){
+                        transporter.sendMail(savedUser.createMailOptions(verifyCode), function(err, info){
                             if (err) {
                                 console.log(err);
                                 User.deleteOne({_id: savedUser._id}, function(err, user) {
@@ -619,12 +620,13 @@ class UserService {
             if (err || user === null) {
                 callback(null, sysErrorMsg);
             } else {
-                user.verification_code = Math.random() * (999999 - 100000) + 100000;
+                const verifyCode = Math.floor(Math.random() * (999999 - 100000) + 100000);
+                user.setVerificationCode(verifyCode.toString());
                 user.save(function(err) {
                     if (err) {
                         callback(null, sysErrorMsg);
                     } else {
-                        transporter.sendMail(user.createMailOptionsChangeEmail(newEmail), function(err, info){
+                        transporter.sendMail(user.createMailOptionsChangeEmail(newEmail, verifyCode), function(err, info){
                             if (err) {
                                 callback(null, "ERROR:error sending email to " + newEmail)
                             } else {
@@ -650,17 +652,19 @@ class UserService {
            if (err || user === null) {
                callback(null, sysErrorMsg);
            } else {
-               if (user.verification_code === verifyCode) {
+               if (user.validVerificationCode(verifyCode)) {
+                   let callbackMsg = 'success';
                    if (user.pending_new_email) {
                        user.email = user.pending_new_email;
                        user.pending_new_email = undefined;
+                       callbackMsg = user.email;
                    }
                    user.verification_code = undefined;
                    user.save(function(err) {
                        if (err) {
                            callback(null, sysErrorMsg);
                        } else {
-                           callback(null, 'success');
+                           callback(null, callbackMsg);
                        }
                    })
                } else {

@@ -33,7 +33,8 @@ const userSchema = new Schema({
     categories: [userCategorySchema],
     bio: {type: String, required: false},
     firstTime: {type: Boolean, required: true},
-    verification_code: {type: Number, required: false},
+    code_hash: {type: String, required: false},
+    code_salt: {type: String, required: false},
     pending_new_email: {type: String, required: false}
 });
 
@@ -51,6 +52,23 @@ userSchema.methods.validPassword = function(password) {
     const hash = crypto.pbkdf2Sync(password,
         this.salt, 1000, 64, `sha512`).toString(`hex`);
     return this.hash === hash;
+};
+
+userSchema.methods.setVerificationCode = function(verifyCode) {
+
+    // Creating a unique salt for a particular user
+    this.code_salt = crypto.randomBytes(16).toString('hex');
+
+    // Hashing user's salt and password with 1000 iterations,
+    this.code_hash = crypto.pbkdf2Sync(verifyCode, this.code_salt,
+        1000, 64, `sha512`).toString(`hex`);
+    console.log("verifyCode:" + verifyCode);
+};
+
+userSchema.methods.validVerificationCode = function(verifyCode) {
+    const hash = crypto.pbkdf2Sync(verifyCode,
+        this.code_salt, 1000, 64, `sha512`).toString(`hex`);
+    return this.code_hash === hash;
 };
 
 userSchema.methods.addNewCategory = function(catID, catName, parentID) {
@@ -162,18 +180,18 @@ userSchema.methods.addSourceImg = function(categoryID, sourceID, imgData, conten
     console.log(sourceID);
 };
 
-userSchema.methods.createMailOptions = function() {
+userSchema.methods.createMailOptions = function(verifyCode) {
     return {
         from: "info@clasifyweb.com",
         to: this.email,
         subject: "Verify Your Clasify Account",
         html: '<h1>Hello ' + this.first_name + '!</h1>' +
-            '<div>Your verification code is: ' + this.verification_code + '</div>',
-        text: 'Your verification code is: ' + this.verification_code
+            '<div>Your verification code is: ' + verifyCode + '</div>',
+        text: 'Your verification code is: ' + verifyCode
     }
 };
 
-userSchema.methods.createMailOptionsChangeEmail = function(newEmail) {
+userSchema.methods.createMailOptionsChangeEmail = function(newEmail, verifyCode) {
     return {
         from: "info@clasifyweb.com",
         to: newEmail,
@@ -181,8 +199,8 @@ userSchema.methods.createMailOptionsChangeEmail = function(newEmail) {
         html: '<h1>Hello ' + this.first_name + '!</h1>' +
             '<div>In order to change the email associated with your Clasify account, use the verification code below.  ' +
             'When you submit the code, this email address will be associated with your Clasify account.</div>' +
-            '<div>Your verification code is: ' + this.verification_code + '</div>',
-        text: 'Your verification code is: ' + this.verification_code
+            '<div>Your verification code is: ' + verifyCode + '</div>',
+        text: 'Your verification code is: ' + verifyCode
     }
 };
 
