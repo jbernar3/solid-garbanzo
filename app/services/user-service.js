@@ -70,7 +70,7 @@ class UserService {
                                 });
                             } else {
                                 console.log('Email sent: ' + info.response);
-                                callback(null, "success");
+                                callback(null, newUser);
                             }
                         });
                         // const isError = nodeoutlook.sendEmail(savedUser.createVerificationEmail());
@@ -109,7 +109,8 @@ class UserService {
                         first_name: user.first_name,
                         last_name: user.last_name,
                         bio: user.bio,
-                        username: user.username
+                        username: user.username,
+                        needsVerification: (user.code_hash !== undefined && user.pending_new_email === undefined)
                     });
                     console.log("Signed In");
                 } else {
@@ -619,24 +620,34 @@ class UserService {
         User.findById(userID, function(err, user) {
             if (err || user === null) {
                 callback(null, sysErrorMsg);
+            } else if (user.email === newEmail) {
+                callback(null, "ERROR:same as registered email");
             } else {
-                const verifyCode = Math.floor(Math.random() * (999999 - 100000) + 100000);
-                user.setVerificationCode(verifyCode.toString());
-                user.save(function(err) {
+                User.find({email: newEmail}, function(err, otherUser) {
                     if (err) {
                         callback(null, sysErrorMsg);
+                    } else if (otherUser.length > 0) {
+                        callback(null, "ERROR:user already registered with this email");
                     } else {
-                        transporter.sendMail(user.createMailOptionsChangeEmail(newEmail, verifyCode), function(err, info){
+                        const verifyCode = Math.floor(Math.random() * (999999 - 100000) + 100000);
+                        user.setVerificationCode(verifyCode.toString());
+                        user.save(function(err) {
                             if (err) {
-                                callback(null, "ERROR:error sending email to " + newEmail)
+                                callback(null, sysErrorMsg);
                             } else {
-                                console.log('Email sent: ' + info.response);
-                                user.pending_new_email = newEmail;
-                                user.save(function(err) {
+                                transporter.sendMail(user.createMailOptionsChangeEmail(newEmail, verifyCode), function(err, info){
                                     if (err) {
-                                        callback(null, sysErrorMsg);
+                                        callback(null, "ERROR:error sending email to " + newEmail)
                                     } else {
-                                        callback(null, "success");
+                                        console.log('Email sent: ' + info.response);
+                                        user.pending_new_email = newEmail;
+                                        user.save(function(err) {
+                                            if (err) {
+                                                callback(null, sysErrorMsg);
+                                            } else {
+                                                callback(null, "success");
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -659,7 +670,8 @@ class UserService {
                        user.pending_new_email = undefined;
                        callbackMsg = user.email;
                    }
-                   user.verification_code = undefined;
+                   user.code_hash = undefined;
+                   user.code_salt = undefined;
                    user.save(function(err) {
                        if (err) {
                            callback(null, sysErrorMsg);

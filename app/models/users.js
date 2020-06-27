@@ -196,10 +196,10 @@ userSchema.methods.createMailOptionsChangeEmail = function(newEmail, verifyCode)
         from: "info@clasifyweb.com",
         to: newEmail,
         subject: "Verify Your Email Address for Your Clasify Account",
-        html: '<h1>Hello ' + this.first_name + '!</h1>' +
-            '<div>In order to change the email associated with your Clasify account, use the verification code below.  ' +
+        html: '<div style="font-weight: bold; font-size: 16pt; color: #a65cff">Hello ' + this.first_name + '!</div>' +
+            '<div style="text-align: center">In order to change the email associated with your Clasify account, use the verification code below.  ' +
             'When you submit the code, this email address will be associated with your Clasify account.</div>' +
-            '<div>Your verification code is: ' + verifyCode + '</div>',
+            '<div style="text-align: center; font-weight: bold; font-size: 13pt">Your verification code is: ' + verifyCode + '</div>',
         text: 'Your verification code is: ' + verifyCode
     }
 };
