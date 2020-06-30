@@ -7,6 +7,7 @@ const userSourceSchema = new Schema({
     source_id: {type: String, required: true},
     source_name: {type: String, required: false},
     source_notes: {type: String, required: false},
+    date_added: {type: Date, required: true}
     // source_urlImgFlag: {type: Boolean, required: true},
     // source_img: {data: Buffer, contentType: String, required: false},
     // source_urlImg: {type: String, required: false}
@@ -109,7 +110,7 @@ userSchema.methods.toggleIsPublicCategory = function(categoryID) {
 userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url, title) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i]._id.toString() === categoryID) {
-            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes};
+            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, date_added: new Date()};
             this.categories[i].sources.push(newSource);
             let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
             let returnTitle = title;
@@ -123,7 +124,8 @@ userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, source
                 source_notes: returnSource.source_notes,
                 source_urlImgFlag: urlFlag,
                 source_urlImg: sourceImg,
-                url: url
+                url: url,
+                date_added: newSource.date_added
             }
         }
     }
@@ -131,8 +133,6 @@ userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, source
 
 userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url, title) {
     for (let i=0; i<this.categories.length; i++) {
-        console.log(this.categories[i]._id);
-        console.log(categoryID);
         if (this.categories[i]._id.toString() === categoryID) {
             for (let j=0; j<this.categories[i].sources.length; j++) {
                 if (this.categories[i].sources[j]._id === sourceID) {
@@ -140,7 +140,7 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
                     return null;
                 }
             }
-            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes};
+            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, date_added: new Date()};
             this.categories[i].sources.push(newSource);
             let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
             let returnTitle = title;
@@ -154,7 +154,8 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
                 source_notes: returnSource.source_notes,
                 source_urlImgFlag: urlFlag,
                 source_urlImg: sourceImg,
-                url: url
+                url: url,
+                date_added: newSource.date_added
             }
         }
     }
@@ -201,6 +202,18 @@ userSchema.methods.createMailOptionsChangeEmail = function(newEmail, verifyCode)
             'When you submit the code, this email address will be associated with your Clasify account.</div>' +
             '<div style="text-align: center; font-weight: bold; font-size: 13pt">Your verification code is: ' + verifyCode + '</div>',
         text: 'Your verification code is: ' + verifyCode
+    }
+};
+
+userSchema.methods.createMailOptionsForgotPwd = function(tempPwd) {
+    return {
+        from: "info@clasifyweb.com",
+        to: this.email,
+        subject: "Temporary Clasify Password",
+        html: '<div style="font-weight: bold; font-size: 16pt; color: #a65cff">Hello ' + this.first_name + '!</div>' +
+            '<div style="text-align: center">This is your temporary Clasify password:</div>' +
+            '<div style="text-align: center; font-weight: bold; font-size: 13pt">' + tempPwd + '</div>',
+        text: 'Your temporary password is ' + tempPwd
     }
 };
 

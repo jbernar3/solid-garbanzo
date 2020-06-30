@@ -254,6 +254,19 @@ app.post('/verify_code', (request, response) => {
    }).then((result) => response.send(result));
 });
 
+app.post('/forgot_password', (request, response) => {
+    new Promise(function(resolve, reject) {
+        UserService.ForgotPassword(request.body.email,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+    }).then((result) => response.send(result));
+});
+
 
 
 
