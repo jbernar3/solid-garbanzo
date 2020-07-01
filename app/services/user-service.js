@@ -343,8 +343,10 @@ class UserService {
                             const urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg";
                             newSource.urlImgFlag = true;
                             newSource.urlImg = urlYoutubeImg;
+                            console.log("ABOUT TO GET TO FETCH YOUTUBE INFO");
+                            const videoInfo = await fetchVideoInfo(video_id);
+                            newSource.default_notes = videoInfo.description;
                             if (suggestedTitle === "") {
-                                const videoInfo = await fetchVideoInfo(video_id);
                                 suggested_title = videoInfo.title;
                             }
                         } else {
@@ -357,7 +359,14 @@ class UserService {
                         }
                         newSource.title = suggested_title;
                         newSource.save(function(err, savedSource) {
+                            if (err) {
+                                callback(null, sysErrorMsg);
+                                console.log(err);
+                            }
                             let newSource;
+                            if (notes === "" || notes === undefined) {
+                                notes = savedSource.default_notes;
+                            }
                             if (savedSource.urlImgFlag) {
                                 newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.urlImg, savedSource.urlImgFlag, savedSource.url, title);
                             } else {
@@ -387,6 +396,9 @@ class UserService {
                         })
                     } else {
                         let userSource;
+                        if (notes === "" || notes === undefined) {
+                            notes = resource.default_notes;
+                        }
                         if (resource.urlImgFlag) {
                             userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag, resource.url);
                         } else {

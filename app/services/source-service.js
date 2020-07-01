@@ -17,8 +17,12 @@ class SourceService {
                     if (url.includes("youtube.com")) {
                         let video_id = url.split('v=')[1];
                         fetchVideoInfo(video_id, function (err, videoInfo) {
-                            if (err) throw new Error(err);
-                            callback(null, videoInfo.title);
+                            if (err) {
+                                console.log("ERROR FOR FETCH VIDEO");
+                                console.log(err);
+                            } else {
+                                callback(null, videoInfo.title);
+                            }
                         });
                     } else {
                         const page = await browser.newPage();
