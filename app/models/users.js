@@ -7,7 +7,8 @@ const userSourceSchema = new Schema({
     source_id: {type: String, required: true},
     source_name: {type: String, required: false},
     source_notes: {type: String, required: false},
-    date_added: {type: Date, required: true}
+    date_added: {type: Date, required: true},
+    has_user_notes: {type: Boolean, required: true}
     // source_urlImgFlag: {type: Boolean, required: true},
     // source_img: {data: Buffer, contentType: String, required: false},
     // source_urlImg: {type: String, required: false}
@@ -107,10 +108,10 @@ userSchema.methods.toggleIsPublicCategory = function(categoryID) {
     return false;
 };
 
-userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url, title) {
+userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url, title, hasUserNotes) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i]._id.toString() === categoryID) {
-            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, date_added: new Date()};
+            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, date_added: new Date(), has_user_notes: hasUserNotes};
             this.categories[i].sources.push(newSource);
             let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
             let returnTitle = title;
@@ -125,13 +126,14 @@ userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, source
                 source_urlImgFlag: urlFlag,
                 source_urlImg: sourceImg,
                 url: url,
-                date_added: newSource.date_added
+                date_added: newSource.date_added,
+                has_user_notes: hasUserNotes
             }
         }
     }
 };
 
-userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url, title) {
+userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTitle, sourceNotes, sourceImg, urlFlag, url, title, hasUserNotes) {
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i]._id.toString() === categoryID) {
             for (let j=0; j<this.categories[i].sources.length; j++) {
@@ -140,7 +142,7 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
                     return null;
                 }
             }
-            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, date_added: new Date()};
+            const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, date_added: new Date(), has_user_notes: hasUserNotes};
             this.categories[i].sources.push(newSource);
             let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
             let returnTitle = title;
@@ -154,8 +156,10 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
                 source_notes: returnSource.source_notes,
                 source_urlImgFlag: urlFlag,
                 source_urlImg: sourceImg,
+                source_img:  sourceImg,
                 url: url,
-                date_added: newSource.date_added
+                date_added: newSource.date_added,
+                has_user_notes: hasUserNotes
             }
         }
     }

@@ -119,7 +119,8 @@ class UserService {
                     source_img: srcParent.img,
                     source_urlImg: srcParent.urlImg,
                     url: srcParent.url,
-                    date_added: src.date_added
+                    date_added: src.date_added,
+                    has_user_notes: src.has_user_notes
                 });
             }
         });
@@ -343,7 +344,6 @@ class UserService {
                             const urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg";
                             newSource.urlImgFlag = true;
                             newSource.urlImg = urlYoutubeImg;
-                            console.log("ABOUT TO GET TO FETCH YOUTUBE INFO");
                             const videoInfo = await fetchVideoInfo(video_id);
                             newSource.default_notes = videoInfo.description;
                             if (suggestedTitle === "") {
@@ -355,6 +355,7 @@ class UserService {
                                 await page.goto(url);
                                 suggested_title = await page.title();
                             }
+                            newSource.default_notes = suggested_title;
                             newSource.urlImgFlag = false;
                         }
                         newSource.title = suggested_title;
@@ -364,13 +365,15 @@ class UserService {
                                 console.log(err);
                             }
                             let newSource;
+                            let hasUserNotes = true;
                             if (notes === "" || notes === undefined) {
+                                hasUserNotes = false;
                                 notes = savedSource.default_notes;
                             }
                             if (savedSource.urlImgFlag) {
-                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.urlImg, savedSource.urlImgFlag, savedSource.url, title);
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, savedSource.urlImg, savedSource.urlImgFlag, savedSource.url, title, hasUserNotes);
                             } else {
-                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, null, savedSource.urlImgFlag, savedSource.url, title);
+                                newSource = user.addUnregisteredSource(categoryID, savedSource._id.toString(), savedSource.title, notes, null, savedSource.urlImgFlag, savedSource.url, title, hasUserNotes);
                             }
                             user.save(function(err){
                                 if (err) {
@@ -396,13 +399,15 @@ class UserService {
                         })
                     } else {
                         let userSource;
+                        let hasUserNotes = true;
                         if (notes === "" || notes === undefined) {
                             notes = resource.default_notes;
+                            hasUserNotes = false;
                         }
                         if (resource.urlImgFlag) {
-                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag, resource.url);
+                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.urlImg, resource.urlImgFlag, resource.url, title, hasUserNotes, resource.img);
                         } else {
-                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img, resource.urlImgFlag, resource.url);
+                            userSource = user.addRegisteredSource(categoryID, resource._id.toString(), resource.title, notes, resource.img, resource.urlImgFlag, resource.url, title, hasUserNotes, resource.img);
                         }
                         if (userSource) {
                             user.save(function (err) {
