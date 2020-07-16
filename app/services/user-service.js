@@ -597,10 +597,10 @@ class UserService {
             } else {
                 let tempSource;
                 for (let i=0; i<user.categories.length; i++) {
-                    if (user.categories[i]._id === categoryID) {
+                    if (user.categories[i]._id.toString() === categoryID) {
                         let tempSources = user.categories[i].sources;
                         for (let j=0; j<tempSources.length; j++) {
-                            if (tempSources[j]._id === sourceID) {
+                            if (tempSources[j]._id.toString() === sourceID) {
                                 tempSource = user.categories[i].sources[j];
                                 tempSource.source_name = newTitle;
                                 tempSource.source_notes = newNotes;
