@@ -70,7 +70,16 @@ app.post('/get_categories', (request, response) => {
 });
 
 app.post('/delete_category', (request, response) => {
-
+    new Promise(function(resolve, reject) {
+        UserService.DeleteCategory(request.body.userID, request.body.categoryID,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+    }).then((result) => response.send(result));
 });
 
 app.post('/delete_source', (request, response) => {

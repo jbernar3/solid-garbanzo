@@ -180,9 +180,6 @@ userSchema.methods.addSourceImg = function(categoryID, sourceID, imgData, conten
             break;
         }
     }
-    console.log("SOURCE IMAGE NOT BEING ADDED CORRECTLY");
-    console.log(categoryID);
-    console.log(sourceID);
 };
 
 userSchema.methods.createMailOptions = function(verifyCode) {

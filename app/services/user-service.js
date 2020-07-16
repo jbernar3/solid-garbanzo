@@ -261,13 +261,23 @@ class UserService {
 
     static async DeleteCategory(userID, categoryID, callback) {
         User.findById(userID, function(err, user) {
-            if (err) {
-                callback(null, "system error");
-            } else if (user == null) {
-                callback(null, "user not found");
+            if (err || user === null) {
+                callback(null, sysErrorMsg);
             } else {
-                user.categories = user.categories.filter(category => category._id !== categoryID);
-                callback(null, categoryID);
+                const tempUserCategories = [];
+                user.categories.forEach((category) => {
+                    if (category._id.toString() !== categoryID && category.parent_id !== categoryID) {
+                        tempUserCategories.push(category);
+                    }
+                });
+                user.categories = tempUserCategories;
+                user.save(function(err) {
+                    if (err) {
+                        callback(null, sysErrorMsg);
+                    } else {
+                        callback(null, 'success');
+                    }
+                });
             }
         })
     }
