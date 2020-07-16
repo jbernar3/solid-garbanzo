@@ -589,6 +589,37 @@ class UserService {
             }
         });
     }
+
+    static async EditSource(userID, categoryID, sourceID, newTitle, newNotes, callback) {
+        User.findById(userID, function(err, user) {
+            if (err || user === null) {
+                callback(null, sysErrorMsg);
+            } else {
+                let tempSource;
+                for (let i=0; i<user.categories.length; i++) {
+                    if (user.categories[i]._id === categoryID) {
+                        let tempSources = user.categories[i].sources;
+                        for (let j=0; j<tempSources.length; j++) {
+                            if (tempSources[j]._id === sourceID) {
+                                tempSource = user.categories[i].sources[j];
+                                tempSource.source_name = newTitle;
+                                tempSource.source_notes = newNotes;
+                                user.categories[i].sources[j] = tempSource;
+                                user.save(function(err) {
+                                    if (err) {
+                                        callback(null, sysErrorMsg);
+                                    } else {
+                                        callback(null, tempSource);
+                                    }
+                                });
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        })
+    }
 }
 
 module.exports = UserService;

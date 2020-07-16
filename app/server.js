@@ -267,7 +267,19 @@ app.post('/forgot_password', (request, response) => {
     }).then((result) => response.send(result));
 });
 
-
+app.post('/edit_source', (request, response) => {
+    new Promise(function(resolve, reject) {
+        UserService.EditSource(request.body.userID, request.body.categoryID, request.body.sourceID,
+            request.body.newTitle, request.body.newNotes,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+    }).then((result) => response.send(result));
+});
 
 
 //Binding to a port
