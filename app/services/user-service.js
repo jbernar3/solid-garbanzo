@@ -233,32 +233,6 @@ class UserService {
         })
     }
 
-    static async DeleteSource(userID, categoryID, sourceID, callback) {
-        User.findById(userID, function(err, user) {
-            if (err) {
-                callback(null, "system error");
-            } else if (user === null) {
-                callback(null, "user not found");
-            } else {
-                const numCategories = user.categories.length;
-                for (let i=0; i<numCategories; i++) {
-                    if (user.categories[i]._id === categoryID) {
-                        const numSources = user.categories.sources.length;
-                        for (let j=0; j<numSources; j++) {
-                            if (user.categories[i].sources[j] === sourceID) {
-                                user.categories[i].sources.splice(j, 1);
-                                console.log("DELETED SOURCE: " + sourceID.toString());
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-                callback(null, sourceID);
-            }
-        })
-    }
-
     static async DeleteCategory(userID, categoryID, callback) {
         User.findById(userID, function(err, user) {
             if (err || user === null) {
@@ -278,6 +252,35 @@ class UserService {
                         callback(null, 'success');
                     }
                 });
+            }
+        })
+    }
+
+    static async DeleteSource(userID, categoryID, sourceID, callback) {
+        User.findById(userID, function(err, user) {
+            if (err || user === null) {
+                callback(null, sysErrorMsg);
+            } else {
+                for (let i=0; i<user.categories.length; i++) {
+                    if (user.categories[i]._id.toString() === categoryID) {
+                        const tempCat = user.categories[i];
+                        let tempSources = [];
+                        tempCat.sources.forEach((source) => {
+                            if (source._id.toString() !== sourceID) {
+                                tempSources.push(source);
+                            }
+                        });
+                        tempCat.sources = tempSources;
+                        user.categories[i] = tempCat;
+                        user.save(function(err) {
+                            if (err) {
+                                callback(null, sysErrorMsg);
+                            } else {
+                                callback(null, "success");
+                            }
+                        })
+                    }
+                }
             }
         })
     }

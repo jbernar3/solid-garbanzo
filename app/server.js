@@ -290,6 +290,19 @@ app.post('/edit_source', (request, response) => {
     }).then((result) => response.send(result));
 });
 
+app.post('/delete_source', (request, response) => {
+    new Promise(function(resolve, reject) {
+        UserService.DeleteSource(request.body.userID, request.body.categoryID, request.body.sourceID,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+    }).then((result) => response.send(result));
+});
+
 
 //Binding to a port
 app.listen(port, ()=>{
