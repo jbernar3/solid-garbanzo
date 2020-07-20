@@ -95,7 +95,8 @@ class UserService {
                         last_name: user.last_name,
                         bio: user.bio,
                         username: user.username,
-                        needsVerification: (user.code_hash !== undefined && user.pending_new_email === undefined)
+                        needsVerification: (user.code_hash !== undefined && user.pending_new_email === undefined),
+                        profileImg: user.profileImg
                     });
                     console.log("Signed In");
                 } else {
@@ -461,7 +462,7 @@ class UserService {
         });
     }
 
-    static async EditProfile(userID, firstName, lastName, bio, callback) {
+    static async EditProfile(userID, firstName, lastName, bio, profileImg, callback) {
         User.findById(userID, function(err, user) {
             if (err || user === null) {
                 console.log(err);
@@ -470,6 +471,7 @@ class UserService {
                 user.first_name = firstName;
                 user.last_name = lastName;
                 user.bio = bio;
+                user.profileImg = profileImg;
                 user.save(function(err) {
                     if (err) {
                         console.log(err);
@@ -630,6 +632,41 @@ class UserService {
                         break;
                     }
                 }
+            }
+        })
+    }
+
+    static async ChangeUsername(userID, newUsername, callback) {
+        if (newUsername.length < 5 || newUsername.length > 10) {
+            callback(null, 'ERROR:username must be 5-10 characters')
+        }
+        User.findById(userID, function(err, user) {
+            if (err || user === null) {
+                console.log(userID);
+                console.log("TCOUDLNT FIND USER");
+                callback(null, sysErrorMsg);
+            } else {
+                User.findOne({username: newUsername}, function(err, otherUser) {
+                    if (err) {
+                        console.log(err);
+                        callback(null, sysErrorMsg)
+                    } else if (otherUser !== null) {
+                        console.log("OTHER USER IF STATEMENT");
+                        console.log(otherUser);
+                        callback(null, "ERROR:username already used")
+                    } else {
+                        user.username = newUsername;
+                        user.save(function(err) {
+                            if (err) {
+                                console.log("THIS IS IN THIS THING");
+                                console.log(err);
+                                callback(null, sysErrorMsg)
+                            } else {
+                                callback(null, 'success')
+                            }
+                        })
+                    }
+                })
             }
         })
     }

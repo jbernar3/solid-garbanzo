@@ -213,7 +213,7 @@ app.post('/get_source_img', (request, response) => {
 
 app.post('/edit_profile', (request, response) => {
     new Promise(function(resolve, reject) {
-        UserService.EditProfile(request.body.userID, request.body.firstName, request.body.lastName, request.body.bio,
+        UserService.EditProfile(request.body.userID, request.body.firstName, request.body.lastName, request.body.bio, request.body.profileImg,
             function(err, result) {
                 if (err) {
                     reject(err);
@@ -293,6 +293,19 @@ app.post('/edit_source', (request, response) => {
 app.post('/delete_source', (request, response) => {
     new Promise(function(resolve, reject) {
         UserService.DeleteSource(request.body.userID, request.body.categoryID, request.body.sourceID,
+            function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            })
+    }).then((result) => response.send(result));
+});
+
+app.post('/change_username', (request, response) => {
+    new Promise(function(resolve, reject) {
+        UserService.ChangeUsername(request.body.userID, request.body.newUsername,
             function(err, result) {
                 if (err) {
                     reject(err);

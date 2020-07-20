@@ -27,6 +27,7 @@ const userSchema = new Schema({
     first_name: {type: String, required: true},
     last_name: {type: String, required: true},
     username: {type: String, required: false},
+    profileImg: {type: String, required: true},
     email: {type: String, required: true, unique: true},
     hash: {type: String, required: true},
     salt: {type: String, required: true},
