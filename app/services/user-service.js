@@ -51,6 +51,7 @@ class UserService {
                 newUser.categories = [];
                 newUser.firstTime = false;
                 newUser.username = await UserService.RandomUsername(firstName, lastName);
+                newUser.profileImg = 'python.png';
                 const verifyCode = Math.floor(Math.random() * (999999 - 100000) + 100000);
                 newUser.setVerificationCode(verifyCode.toString());
                 newUser.save(function(err, savedUser) {
