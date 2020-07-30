@@ -84,9 +84,9 @@ class UserService {
     static async Signin(email, password, callback) {
         User.findOne({ email: email}, function(err, user) {
             if (err) {
-                callback(null, "error");
+                callback(null, sysErrorMsg);
             } else if (user === null) {
-                callback(null, "dne");
+                callback(null, "ERROR:Incorrect username or password.");
             } else {
                 if (user.validPassword(password)) {
                     callback(null, {
@@ -101,7 +101,7 @@ class UserService {
                     });
                     console.log("Signed In");
                 } else {
-                    callback(null, "incorrect password");
+                    callback(null, "ERROR:Incorrect password.");
                 }
             }
         });
@@ -335,8 +335,6 @@ class UserService {
     }
 
     static async NewSource(userID, categoryID, url, title, notes, suggestedTitle, browser, callback) {
-        console.log(url);
-        console.log(suggestedTitle);
         User.findById(userID, function(err, user) {
             if (err) {
                 callback(null, sysErrorMsg);

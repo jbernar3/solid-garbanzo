@@ -113,8 +113,8 @@ userSchema.methods.addUnregisteredSource = function(categoryID, sourceID, source
     for (let i=0; i<this.categories.length; i++) {
         if (this.categories[i]._id.toString() === categoryID) {
             const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, date_added: new Date(), has_user_notes: hasUserNotes};
-            this.categories[i].sources.push(newSource);
-            let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
+            this.categories[i].sources.unshift(newSource);
+            let returnSource = this.categories[i].sources[0];
             let returnTitle = title;
             if (title === undefined || title === "" || title === null) {
                 returnTitle = sourceTitle;
@@ -144,8 +144,8 @@ userSchema.methods.addRegisteredSource = function(categoryID, sourceID, sourceTi
                 }
             }
             const newSource = {source_id: sourceID, source_name: sourceTitle, source_notes: sourceNotes, date_added: new Date(), has_user_notes: hasUserNotes};
-            this.categories[i].sources.push(newSource);
-            let returnSource = this.categories[i].sources[this.categories[i].sources.length - 1];
+            this.categories[i].sources.unshift(newSource);
+            let returnSource = this.categories[i].sources[0];
             let returnTitle = title;
             if (title === undefined || title === "" || title === null) {
                 returnTitle = sourceTitle;

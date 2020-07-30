@@ -1,11 +1,9 @@
-const User = require('../models/users');
-const Category = require('../models/categories');
 const Resource = require('../models/sources');
-const PublicCategories = require('../models/public_categories');
 const fs = require('fs');
 const sharp = require('sharp');
 const fetchVideoInfo = require('youtube-info');
 const sysErrorMsg = "ERROR:system error, please try again.";
+const Buffer = require('buffer').Buffer;
 
 class SourceService {
     static async GetTitle(url, browser, callback) {
@@ -18,8 +16,6 @@ class SourceService {
                         let video_id = url.split('v=')[1];
                         fetchVideoInfo(video_id, function (err, videoInfo) {
                             if (err) {
-                                console.log("ERROR FOR FETCH VIDEO");
-                                console.log(err);
                             } else {
                                 callback(null, videoInfo.title);
                             }
@@ -38,6 +34,13 @@ class SourceService {
                 callback(null, resource.title);
             }
         });
+    }
+
+    static ArrayBufferToBase64(buffer) {
+        let binary = '';
+        let bytes = [].slice.call(new Uint8Array(buffer));
+        bytes.forEach((b) => binary += String.fromCharCode(b));
+        return Buffer.from(binary).toString('base64');
     }
 
     static async GetThumbNail(sourceID, browser, callback) {
@@ -62,6 +65,7 @@ class SourceService {
                 fs.unlinkSync(output_img_path);
                 source.img.data = imgData;
                 source.img.contentType = contentType;
+                // source.img = await SourceService.ArrayBufferToBase64(imgData);
                 source.save(function(err, savedSource) {
                     if (err) {
                         callback(null, "ERROR: source saving error")

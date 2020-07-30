@@ -1,6 +1,4 @@
 const User = require('../models/users');
-const Category = require('../models/categories');
-const Resource = require('../models/sources');
 const PublicCategories = require('../models/public_categories');
 
 class PublicCategoriesService {

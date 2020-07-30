@@ -18,6 +18,7 @@
   "homepage": "https://github.com/jbernar3/solid-garbanzo#readme",
   "dependencies": {
     "body-parser": "latest",
+    "buffer": "^5.6.0",
     "connect": "^3.7.0",
     "crypto": "^1.0.1",
     "express": "^4.17.1",

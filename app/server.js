@@ -1,9 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const User = require('./models/users');
-const Category = require('./models/categories');
-const Resource = require('./models/sources');
 const port = process.env.PORT || 3000;
 const UserService = require('./services/user-service');
 const PublicCategoriesService = require('./services/public-categories-service');
