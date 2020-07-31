@@ -1,12 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const cors = require('cors');
 const port = process.env.PORT || 3000;
 const UserService = require('./services/user-service');
 const PublicCategoriesService = require('./services/public-categories-service');
 const SourceService = require('./services/source-service');
 const Scraper = require('./services/scraper');
 const puppeteer = require('puppeteer');
+
+app.use(cors());
 
 let global_browser = false;
 async function init_puppeteer() {
