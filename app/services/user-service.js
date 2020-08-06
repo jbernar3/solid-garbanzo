@@ -643,7 +643,7 @@ class UserService {
                 for (let i=0; i<user.categories.length; i++) {
                     if (user.categories[i]._id.toString() === catID) {
                         user.categories[i].category_name = catName;
-                        const changeParentID = user.categories[i].parent_id === parentID;
+                        const changeParentID = user.categories[i].parent_id !== parentID;
                         user.categories[i].parent_id = parentID;
                         user.save(function(err) {
                             if (err) {
