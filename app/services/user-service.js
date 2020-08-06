@@ -635,6 +635,29 @@ class UserService {
         })
     }
 
+    static async EditCategory(userID, catID, catName, parentID, callback) {
+        User.findById(userID, function(err, user) {
+            if (err || user === null) {
+                callback(null, sysErrorMsg);
+            } else {
+                for (let i=0; i<user.categories.length; i++) {
+                    if (user.categories[i]._id.toString() === catID) {
+                        user.categories[i].category_name = catName;
+                        const changeParentID = user.categories[i].parent_id === parentID;
+                        user.categories[i].parent_id = parentID;
+                        user.save(function(err) {
+                            if (err) {
+                                callback(null, sysErrorMsg);
+                            } else {
+                                callback(null, changeParentID);
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    }
+
     static async ChangeUsername(userID, newUsername, callback) {
         if (newUsername.length < 5 || newUsername.length > 10) {
             callback(null, 'ERROR:username must be 5-10 characters')
