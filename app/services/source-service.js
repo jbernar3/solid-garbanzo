@@ -12,8 +12,14 @@ class SourceService {
                 callback(null, sysErrorMsg);
             } else if (resource === null) {
                 try {
-                    if (url.includes("youtube.com")) {
-                        let video_id = url.split('v=')[1];
+                    if (url.includes("youtube.com/watch?v=") || url.includes("youtu.be/")) {
+                        let video_id;
+                        if (url.includes('youtu.be/')) {
+                            const splitStr = url.split('/');
+                            video_id = splitStr[splitStr.length - 1];
+                        } else {
+                            video_id = url.split('v=')[1];
+                        }
                         fetchVideoInfo(video_id, function (err, videoInfo) {
                             if (err) {
                             } else {
@@ -21,8 +27,15 @@ class SourceService {
                             }
                         });
                     } else {
+                        let finalUrl = url;
+                        if (!finalUrl.startsWith('https://') && !finalUrl.startsWith('http://')) {
+                            if (!finalUrl.startsWith('www.')) {
+                                finalUrl = 'www.' + finalUrl;
+                            }
+                            finalUrl = 'https://' + finalUrl;
+                        }
                         const page = await browser.newPage();
-                        await page.goto(url);
+                        await page.goto(finalUrl);
                         const suggested_title = await page.title();
                         await page.close();
                         callback(null, suggested_title);
@@ -75,49 +88,6 @@ class SourceService {
                 })
             }
         });
-        // User.findById(userID, async function(err, user) {
-        //     if (err || user === null) {
-        //         callback(null, "ERROR: finding user");
-        //     } else {
-        //         const r = Math.random().toString(36).substring(7);
-        //         const img_path = 'source_screenshots/' + r + '.png';
-        //         const output_img_path = 'source_screenshots/output_' + r + '.png';
-        //         const page = await browser.newPage();
-        //         await page.goto(url);
-        //         await page.screenshot({
-        //             path: img_path,
-        //             fullPage: false
-        //         });
-        //         await sharp(img_path).resize({height: 240, width: 400}).toFile(output_img_path);
-        //         await page.close();
-        //         const imgData = fs.readFileSync(output_img_path);
-        //         const contentType = 'image/png';
-        //         //const globalSourceID = user.addSourceImg(categoryID, sourceID, imgData, contentType);
-        //         fs.unlinkSync(img_path);
-        //         fs.unlinkSync(output_img_path);
-        //         user.save(function(err) {
-        //             if (err) {
-        //                 callback(null, "ERROR: user saving error");
-        //             } else {
-        //                 Resource.findById(globalSourceID, function(err, source) {
-        //                     if (err || user === null) {
-        //                         callback(null, "ERROR: finding source by id");
-        //                     } else {
-        //                         source.img.data = imgData;
-        //                         source.img.contentType = contentType;
-        //                         source.save(function(err, savedSource) {
-        //                             if (err) {
-        //                                 callback(null, "ERROR: source saving error")
-        //                             } else {
-        //                                 callback(null, savedSource.img);
-        //                             }
-        //                         })
-        //                     }
-        //                 });
-        //             }
-        //         });
-        //     }
-        // });
     }
 }
 

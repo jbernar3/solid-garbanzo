@@ -344,15 +344,22 @@ class UserService {
                         callback(null, sysErrorMsg);
                     } else if (resource === null) {
                         const newSource = new Resource();
-                        newSource.url = url;
                         newSource.countUse = 1;
                         newSource.featuredCategories = [categoryID];
                         let suggested_title = suggestedTitle;
-                        if (url.includes("youtube.com")) {
-                            let video_id = url.split('v=')[1];
-                            let ampersandPosition = video_id.indexOf('&');
-                            if(ampersandPosition !== -1) {
-                                video_id = video_id.substring(0, ampersandPosition);
+                        if (url.includes("youtube.com/watch?v=") || url.includes("youtu.be/")) {
+                            // let video_id = url.split('v=')[1];
+                            // let ampersandPosition = video_id.indexOf('&');
+                            // if(ampersandPosition !== -1) {
+                            //     video_id = video_id.substring(0, ampersandPosition);
+                            // }
+                            newSource.url = url;
+                            let video_id;
+                            if (url.includes("youtu.be/")) {
+                                const splitStr = url.split('/');
+                                video_id = splitStr[splitStr.length - 1];
+                            } else {
+                                video_id = url.split('v=')[1];
                             }
                             const urlYoutubeImg = "http://img.youtube.com/vi/" + video_id + "/0.jpg";
                             newSource.urlImgFlag = true;
@@ -363,11 +370,19 @@ class UserService {
                                 suggested_title = videoInfo.title;
                             }
                         } else {
+                            let finalUrl = url;
+                            if (!finalUrl.startsWith('https://') && !finalUrl.startsWith('http://')) {
+                                if (!finalUrl.startsWith('www.')) {
+                                    finalUrl = 'www.' + finalUrl;
+                                }
+                                finalUrl = 'https://' + finalUrl;
+                            }
                             if (suggestedTitle === "") {
                                 const page = await browser.newPage();
-                                await page.goto(url);
+                                await page.goto(finalUrl);
                                 suggested_title = await page.title();
                             }
+                            newSource.url = finalUrl;
                             newSource.default_notes = suggested_title;
                             newSource.urlImgFlag = false;
                         }
